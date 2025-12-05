@@ -6,9 +6,7 @@ import codecs
 from fpdf import FPDF
 import re
 import streamlit.components.v1 as components
-
 # --- CUSTOM CSS STYLING ---
-
 CUSTOM_CSS = """
 <style>
 /* General App Styling */
@@ -19,7 +17,6 @@ CUSTOM_CSS = """
 .stApp header {
     background-color: transparent;
 }
-
 /* Center Titles */
 h1, h2, h3, h4, h5, h6 {
     text-align: center;
@@ -29,7 +26,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 1.5rem;
     color: #555;
 }
-
 /* Question Text Styling */
 .question-text {
     font-size: 1.2rem;
@@ -38,15 +34,12 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 25px;
     margin-bottom: 10px;
 }
-
 /* --- RADIO BUTTON GRID LAYOUT FIX --- */
-
 /* 1. Force Text Color to Black */
-div[role="radiogroup"] label p {
+div[role="radiogroup"] > label > div > p {
     color: #000000 !important;
     font-weight: 500;
 }
-
 /* 2. Container Styling - Create a Grid */
 div[role="radiogroup"] {
     display: flex;
@@ -54,7 +47,6 @@ div[role="radiogroup"] {
     gap: 10px;
     width: 100%;
 }
-
 /* 3. Individual Option Styling (Cards) */
 div[role="radiogroup"] > label {
     background-color: #ffffff;
@@ -63,30 +55,27 @@ div[role="radiogroup"] > label {
     border: 1px solid #d0d0d0;
     cursor: pointer;
     transition: all 0.2s ease;
-    
+   
     /* Grid Logic: Take up approx 48% of space (2 per row) */
-    flex: 1 1 45%; 
+    flex: 1 1 45%;
     min-width: 200px; /* If screen is too small, wrap to full width */
-    
+   
     display: flex;
     align-items: center;
     justify-content: flex-start;
     margin-right: 0px !important; /* Override streamlit default */
 }
-
 /* Green Highlight for Selected Option */
 div[role="radiogroup"] > label:has(input:checked) {
     background-color: #e8f5e9 !important; /* Light green background */
-    border-color: #4CAF50 !important;      /* Green border */
+    border-color: #4CAF50 !important; /* Green border */
     box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
 }
-
 /* Ensure the radio circle itself is green */
 div[role="radiogroup"] > label:has(input:checked) div[data-testid="stMarkdownContainer"] > p {
     color: #1b5e20 !important; /* Dark green text */
     font-weight: bold;
 }
-
 /* --- NAVIGATION BUTTONS --- */
 .stButton button {
     width: 100%;
@@ -108,7 +97,6 @@ div[role="radiogroup"] > label:has(input:checked) div[data-testid="stMarkdownCon
     background-color: #cccccc;
     color: #666666 !important;
 }
-
 /* --- ACTION PLAN CARD STYLING --- */
 .action-plan-card {
     background-color: #f1f8e9; /* Soothing Light Green */
@@ -142,9 +130,7 @@ div[role="radiogroup"] > label:has(input:checked) div[data-testid="stMarkdownCon
 }
 </style>
 """
-
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-
 # --- JAVASCRIPT FOR SCROLL TO TOP ---
 js_scroll_top = """
 <script>
@@ -154,9 +140,7 @@ js_scroll_top = """
     window.parent.window.scrollTo(0, 0);
 </script>
 """
-
 # --- GLOBAL DATA & OPTIONS ---
-
 standard_options = [
     "1. Strongly Disagree",
     "2. Disagree",
@@ -164,7 +148,6 @@ standard_options = [
     "4. Agree",
     "5. Strongly Agree"
 ]
-
 ace_options = [
     "1. Never",
     "2. Rarely",
@@ -172,9 +155,7 @@ ace_options = [
     "4. Often",
     "5. Very Often"
 ]
-
 # --- UTILITY FUNCTIONS ---
-
 def load_csv_smart(filename):
     encodings = ['utf-8', 'utf-16', 'cp1252', 'latin1', 'iso-8859-1', 'mbcs']
     separators = [',', '\t', ';']
@@ -185,7 +166,6 @@ def load_csv_smart(filename):
             except:
                 pass
     raise ValueError(f"Could not load {filename} with any encoding/separator combo.")
-
 # Load Data
 try:
     questions_df = load_csv_smart("Updated_100Q_Assessment.csv")
@@ -194,7 +174,6 @@ try:
 except ValueError as e:
     st.error(f"Error loading required data files: {e}")
     st.stop()
-
 ACTION_PLANS = {
     1: "Week 1: Keep a 'Perfectionism Log'. Record situations where you felt the urge to be perfect. Note the specific standard you felt you had to meet and rate your anxiety (1-10). Identify if the standard was self-imposed or external.\nWeek 2: Use 'Cost-Benefit Analysis'. List the advantages (e.g., praise, safety) vs. disadvantages (e.g., burnout, time loss) of your high standards. Challenge the 'All-or-Nothing' distortion: 'If I'm not perfect, I'm a failure.'\nWeek 3: The 'B+ Experiment'. Deliberately perform a low-stakes task (e.g., an internal email, a quick chore) to an 80% standard. Resist the urge to fix it. Record the outcome: Did a catastrophe happen?\nWeek 4: Create a 'Good Enough' Mantra card. Schedule mandatory 'Non-Productive Time' where the goal is specifically to achieve nothing, reinforcing worth separate from output.",
     2: "Week 1: Track 'Agency Moments'. Record times during the day when you actually made a choice (even small ones like what to eat). Rate your sense of control (0-10) for each.\nWeek 2: Challenge 'Fortune Telling'. When you think 'It won't matter anyway,' ask: 'What is the evidence for this?' and 'Have I ever influenced an outcome before?' Write down 3 counter-examples.\nWeek 3: Graded Task Assignment. Pick one micro-goal (e.g., wash 3 dishes, send 1 text). Do not focus on the outcome, only the initiation. Treat the action itself as the success.\nWeek 4: Build a 'Success Log'. Every evening, write down 3 things you influenced that day. Review this log whenever the feeling of paralysis returns.",
@@ -217,46 +196,44 @@ ACTION_PLANS = {
     19: "Week 1: Connection Inventory. How many meaningful interactions do you have weekly? Rate your feeling of belonging (1-10).\nWeek 2: Empathy Exercise. When seeing a stranger, practice imagining their life, struggles, and hopes. Humanize the 'other'.\nWeek 3: Contribution. Do one small act for the community (pick up trash, donate, hold a door). Focus on the feeling of being part of the whole.\nWeek 4: Group Participation. Join one local group or online community centered on a shared interest. Attend once.",
     20: "Week 1: Trigger Awareness (Safety First). Identify specific sensory triggers (smells, sounds). Focus on grounding immediately when triggered.\nWeek 2: Cognitive Processing. Work on 'Stuck Points' (e.g., 'The world is unsafe'). Differentiate 'Then' (trauma time) vs. 'Now' (safe time).\nWeek 3: Titrated Exposure. Slowly approach safe situations you avoid due to trauma triggers. Do this only when regulated.\nWeek 4: Maintenance & Care. Build a robust support network (therapy, groups). Prioritize nervous system regulation as a lifestyle, not a fix."
 }
-
 # --- SCORING FUNCTIONS ---
-
 if 'page' not in st.session_state:
     st.session_state.page = 0
 if 'answers' not in st.session_state:
     st.session_state.answers = {}
-
+if 'last_page' not in st.session_state:
+    st.session_state.last_page = -1
 def calculate_schema_scores(answers):
     if len(answers) != len(questions_df):
         return {}
-        
+       
     results = {}
     for schema_id in map_df['Schema_ID'].unique():
         schema_rows = map_df[map_df['Schema_ID'] == schema_id]
         raw_scores = []
         max_possible = 0
-        
+       
         for _, row in schema_rows.iterrows():
             qid = row['Question_ID']
             direction = row['Direction']
-            user_val = min(max(answers.get(qid, 0), 1), 5) 
+            user_val = min(max(answers.get(qid, 0), 1), 5)
             is_ace = 61 <= qid <= 70
-            
+           
             if is_ace:
                 contrib = 1 if user_val > 1 else 0
                 q_max = 1
             else:
                 contrib = user_val
                 q_max = 5
-                
+               
             score = contrib if direction == 1 else (q_max + 1 - contrib)
             raw_scores.append(score)
             max_possible += q_max
-            
+           
         raw_sum = sum(raw_scores)
         percentage = (raw_sum / max_possible) * 100 if max_possible > 0 else 0
         results[schema_id] = round(percentage, 1)
     return results
-
 def get_top_schemas(scores, trauma_threshold=60):
     sorted_scores = sorted(scores.items(), key=lambda x: (-x[1], x[0]))
     top_3 = [item[0] for item in sorted_scores[:3]]
@@ -267,16 +244,14 @@ def get_top_schemas(scores, trauma_threshold=60):
         display.append(20)
         root_cause_note = "Trauma Core Schema (No. 20) is highly elevated and may be a root driver of other schemas."
     return display, root_cause_note, {sid: scores[sid] for sid in display}
-
 def generate_pdf(plain_text):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, plain_text.encode('latin-1', 'replace').decode('latin-1')) 
-    pdf_bytes = BytesIO(pdf.output(dest='S').encode('latin-1')) 
+    pdf.multi_cell(0, 10, plain_text.encode('latin-1', 'replace').decode('latin-1'))
+    pdf_bytes = BytesIO(pdf.output(dest='S').encode('latin-1'))
     pdf_bytes.seek(0)
     return pdf_bytes
-
 # --- HELPER FUNCTION FOR ACTION PLAN FORMATTING ---
 def format_action_plan_html(plan_text):
     """
@@ -286,23 +261,21 @@ def format_action_plan_html(plan_text):
     # Use Regex to wrap 'Week X:' in a span with bold class
     # The pattern looks for 'Week' followed by a digit and a colon
     formatted = re.sub(
-        r'(Week \d+:)', 
-        r'<br><span class="week-bold">\1</span>', 
+        r'(Week \d+:)',
+        r'<br><span class="week-bold">\1</span>',
         plan_text
     )
     # Remove the very first <br> if it exists at the start
     if formatted.startswith('<br>'):
         formatted = formatted[4:]
-        
+       
     return formatted
-
 # --- MAIN APP UI ---
-
 st.set_page_config(layout="wide", page_title="Latent Recursion Test")
-
-# Inject scroll-to-top JS
-components.html(js_scroll_top, height=0, width=0)
-
+# Conditional scroll-to-top JS only on page change
+if st.session_state.page != st.session_state.last_page:
+    components.html(js_scroll_top, height=0, width=0)
+st.session_state.last_page = st.session_state.page
 # Title & Headers
 st.title("Latent Recursion Test")
 st.markdown("""
@@ -314,31 +287,28 @@ st.markdown("""
 </p>
 """, unsafe_allow_html=True)
 st.divider()
-
 # Disclaimer
 st.markdown("""
 <div style="padding: 15px; background-color: #ffffff; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
     <strong>Disclaimer:</strong> This assessment is for informational and educational purposes only. It is not a substitute for professional mental health diagnosis or treatment. The results are based on schema therapy principles and should be discussed with a qualified mental health professional. **All questions are mandatory.**
 </div>
 """, unsafe_allow_html=True)
-
 # Pagination Logic
 questions_per_page = 10
 total_pages = (len(questions_df) + questions_per_page - 1) // questions_per_page
-
 if st.session_state.page < total_pages:
-    
+   
     start = st.session_state.page * questions_per_page
     end = start + questions_per_page
     page_questions = questions_df.iloc[start:end]
-    
+   
     st.progress((st.session_state.page + 1) / total_pages)
     st.subheader(f"Section {st.session_state.page + 1} of {total_pages}")
-    
+   
     # Scale Key
     first_qid = page_questions.iloc[0]['ID']
     is_ace_page = 61 <= first_qid <= 70
-    
+   
     if is_ace_page:
         scale_min_text = "Never"
         scale_max_text = "Very Often"
@@ -347,7 +317,7 @@ if st.session_state.page < total_pages:
         scale_min_text = "Strongly Disagree"
         scale_max_text = "Strongly Agree"
         current_options = standard_options
-        
+       
     st.markdown(
         f"""
         <div style="text-align:center; margin-bottom: 20px; font-weight:bold;">
@@ -357,69 +327,69 @@ if st.session_state.page < total_pages:
         unsafe_allow_html=True
     )
     st.markdown("---")
-    
+   
     # Question Loop
     for _, q in page_questions.iterrows():
         qid = q['ID']
         question_text = q['Question Text']
-        
+       
         if 61 <= qid <= 70:
             current_options_q = ace_options
         else:
             current_options_q = standard_options
-            
+           
         previous_val = st.session_state.answers.get(qid, 3)
         previous_answer_str = current_options_q[previous_val - 1]
-        
+       
         st.markdown(f"<div class='question-text'>Q{qid}: {question_text}</div>", unsafe_allow_html=True)
-        
+       
         # Radio buttons (Vertical, but styled as Grid via CSS)
         selected_option_str = st.radio(
-            "Select option:", 
-            options=current_options_q, 
-            index=current_options_q.index(previous_answer_str), 
+            "Select option:",
+            options=current_options_q,
+            index=current_options_q.index(previous_answer_str),
             key=f"q_{qid}",
             horizontal=False, # We let CSS handle the side-by-side layout
             label_visibility='collapsed'
         )
-        
+       
         try:
             selected_val = int(selected_option_str.split('.')[0])
             st.session_state.answers[qid] = selected_val
         except (ValueError, IndexError):
-            st.session_state.answers[qid] = 3 
-            
+            st.session_state.answers[qid] = 3
+           
     st.markdown("---")
-    
+   
     # Navigation
     col1, col2 = st.columns(2)
-    
+   
     if st.session_state.page > 0:
         if col1.button("⬅️ Previous", key="prev_button"):
             st.session_state.page -= 1
             st.rerun()
-            
+           
     page_question_ids = page_questions['ID'].tolist()
     current_page_answered = all(qid in st.session_state.answers for qid in page_question_ids)
-    
+   
     if not current_page_answered:
         col2.button("Next / Submit ➡️", disabled=True, key="disabled_next")
         st.error(f"Please answer all {len(page_question_ids)} questions on this page before continuing.")
-    
+   
     else:
         button_label = "Submit & See Results 🎉" if st.session_state.page == total_pages - 1 else "Next ➡️"
-        
+       
         if col2.button(button_label, key="next_submit_button"):
             if st.session_state.page < total_pages - 1:
                 st.session_state.page += 1
                 st.rerun()
             else:
                 if len(st.session_state.answers) == len(questions_df):
-                    st.session_state.page = total_pages 
+                    st.session_state.page = total_pages
                     st.rerun()
                 else:
                     st.error("Submission failed: Not all questions were answered.")
-                
+               
 else:
     # --- RESULTS PAGE ---
     if len(st.session_state.answers) != len(questions_df):
@@ -429,21 +399,21 @@ else:
             st.session_state.answers = {}
             st.rerun()
         st.stop()
-        
+       
     scores = calculate_schema_scores(st.session_state.answers)
     top_schemas, root_note, top_scores = get_top_schemas(scores)
-    
+   
     st.header("Results")
     st.markdown("""
         <p style='text-align:center; font-size: 1.15rem; margin-bottom: 2rem;'>
-            Based on your input, these are the top 3 psychological patterns potentially affecting your personal growth. 
+            Based on your input, these are the top 3 psychological patterns potentially affecting your personal growth.
             Plus, a 30-day action plan to readjust and find balance.
         </p>
     """, unsafe_allow_html=True)
     st.divider()
-    
+   
     plain_text = "--- Latent Recursion Test Report ---\n\n"
-    
+   
     for sid in top_schemas:
         schema_row = schemas_df[schemas_df['Schema'] == sid].iloc[0]
         name = schema_row['Schema Name']
@@ -451,14 +421,14 @@ else:
         root = schema_row['Root Causes (Childhood Drivers)']
         patterns = schema_row['Symptoms & Behavioral Loops']
         plan = ACTION_PLANS.get(sid, 'Custom 30-day plan based on schema therapy principles.')
-        
+       
         # Apply HTML formatting to the plan (Bold Weeks, add spacing)
         formatted_plan_html = format_action_plan_html(plan)
-        
+       
         st.markdown(f"### 🎯 {name} ({score}%)")
         st.markdown(f"**Root Cause:** {root}")
         st.markdown(f"**Patterns Keeping You Stuck:** {patterns}")
-        
+       
         # Display the formatted Action Plan
         st.markdown(f"""
         <div class="action-plan-card">
@@ -466,17 +436,17 @@ else:
             <div class="action-plan-content">{formatted_plan_html}</div>
         </div>
         """, unsafe_allow_html=True)
-        
+       
         st.divider()
         plain_text += f"Schema: {name} ({score}%)\n\nRoot Cause: {root}\n\nPatterns Keeping You Stuck: {patterns}\n\n30-Day Action Plan:\n{plan}\n\n---\n"
-        
+       
     if root_note:
         st.warning(root_note)
         plain_text += f"Note: {root_note}\n\n"
-        
+       
     pdf = generate_pdf(plain_text)
     st.download_button("⬇️ Download PDF Report", pdf, "latent_recursion_report.pdf", "application/pdf")
-    
+   
     if st.button("Restart Assessment", key="restart_button_final"):
         st.session_state.page = 0
         st.session_state.answers = {}
