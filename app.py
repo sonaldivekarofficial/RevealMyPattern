@@ -5,85 +5,129 @@ import csv
 import codecs
 from fpdf import FPDF
 import re
+import streamlit.components.v1 as components
 
-# --- CUSTOM CSS STYLING (Changes 1, 3, 4, 5) ---
+# --- CUSTOM CSS STYLING ---
 
 CUSTOM_CSS = """
 <style>
-/* 1. Fresh Look and Centering */
+/* General App Styling */
 .stApp {
-    background-color: #f8f8ff; /* Light, fresh background */
+    background-color: #f8f8ff; /* Fresh background */
     color: #333333;
 }
 .stApp header {
-    background-color: #fff; /* White header background */
+    background-color: transparent;
 }
-/* Center all titles, headers, and subheaders */
+
+/* Center Titles */
 h1, h2, h3, h4, h5, h6 {
     text-align: center;
 }
 .centered-subtitle {
     text-align: center;
     margin-bottom: 1.5rem;
+    color: #555;
 }
 
-/* 3. Green Radio Buttons on Selection */
-div.stRadio > label > div[data-testid="stCheckableElement"] {
-    padding: 10px;
+/* Question Text Styling */
+.question-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-top: 20px;
+    margin-bottom: 5px;
+}
+
+/* Radio Button Styling */
+/* Ensure the text is visible and provide spacing */
+div.stRadio > label {
+    font-size: 1rem;
+    color: #333;
+}
+
+/* Style the container of the radio options to look like cards */
+div[role="radiogroup"] > label {
+    background-color: #ffffff;
+    padding: 10px 15px;
     border-radius: 8px;
-    border: 1px solid #ddd;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 8px;
     transition: all 0.2s ease;
     cursor: pointer;
-    background-color: #ffffff; /* White background for unselected */
+    display: flex; /* Ensure alignment */
+    width: 100%;
 }
-/* Green styling when checked/selected */
-div.stRadio > label > div[data-testid="stCheckableElement"]:has(input:checked) {
-    background-color: #e6ffe6; /* Very light green background */
-    border-color: #4CAF50; /* Green border */
-    color: #1a5e20; /* Darker green text color for better contrast */
+
+/* Green Highlight for Selected Option */
+div[role="radiogroup"] > label:has(input:checked) {
+    background-color: #e8f5e9 !important; /* Light green background */
+    border-color: #4CAF50 !important;      /* Green border */
+    color: #1b5e20 !important;             /* Dark green text */
     font-weight: bold;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2);
 }
 
-/* 4. Larger Question Text */
-.question-text {
-    font-size: 1.15rem; /* Large font size for questions */
-    font-weight: 500;
-    color: #1a1a1a;
-    padding-top: 15px;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-    background-color: #ffffff; /* White background for question block */
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-/* 5. Large Green Next/Submit Button */
+/* Navigation Buttons */
 .stButton button {
     width: 100%;
-    padding: 15px 24px;
-    font-size: 1.2rem;
+    padding: 12px 24px;
+    font-size: 1.1rem;
     font-weight: bold;
-    color: white !important; /* Force white text */
-    background-color: #4CAF50; /* Green color */
+    color: white !important;
+    background-color: #4CAF50; /* Green */
     border-radius: 8px;
     border: none;
-    transition: background-color 0.2s;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 .stButton button:hover {
     background-color: #45a049;
-    border: none;
+}
+.stButton button:disabled {
+    background-color: #cccccc;
+    color: #666666 !important;
+}
+
+/* Action Plan Card Styling (Soothing Green) */
+.action-plan-card {
+    background-color: #f1f8e9;
+    padding: 25px;
+    border-radius: 12px;
+    border-left: 6px solid #8bc34a;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.action-plan-title {
+    color: #2e7d32;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 0;
+}
+.action-plan-content {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    color: #333;
 }
 </style>
 """
 
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
-# --- GLOBAL CONFIGURATION AND SCALES ---
+# --- JAVASCRIPT FOR SCROLL TO TOP ---
+# This script injects a scroll command every time the app reruns (e.g., page change)
+js_scroll_top = """
+<script>
+    var body = window.parent.document.body;
+    var footer = window.parent.document.querySelector('footer');
+    // Scroll to top
+    window.parent.window.scrollTo(0, 0);
+</script>
+"""
 
-# Define the two distinct scale option sets (1-5)
+# --- GLOBAL DATA & OPTIONS ---
+
 standard_options = [
     "1. Strongly Disagree",
     "2. Disagree",
@@ -102,20 +146,18 @@ ace_options = [
 
 # --- UTILITY FUNCTIONS ---
 
-# Smart CSV loader to handle encoding issues
 def load_csv_smart(filename):
     encodings = ['utf-8', 'utf-16', 'cp1252', 'latin1', 'iso-8859-1', 'mbcs']
     separators = [',', '\t', ';']
     for enc in encodings:
         for sep in separators:
             try:
-                # Added 'on_bad_lines=skip' for robustness
                 return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
             except:
                 pass
     raise ValueError(f"Could not load {filename} with any encoding/separator combo.")
 
-# Load data
+# Load Data
 try:
     questions_df = load_csv_smart("Updated_100Q_Assessment.csv")
     map_df = load_csv_smart("Schema_Weighted_Score_Map.csv")
@@ -124,8 +166,6 @@ except ValueError as e:
     st.error(f"Error loading required data files: {e}")
     st.stop()
 
-
-# Action plans (Data remains the same)
 ACTION_PLANS = {
     1: "Week 1: Keep a 'Perfectionism Log'. Record situations where you felt the urge to be perfect. Note the specific standard you felt you had to meet and rate your anxiety (1-10). Identify if the standard was self-imposed or external.\nWeek 2: Use 'Cost-Benefit Analysis'. List the advantages (e.g., praise, safety) vs. disadvantages (e.g., burnout, time loss) of your high standards. Challenge the 'All-or-Nothing' distortion: 'If I'm not perfect, I'm a failure.'\nWeek 3: The 'B+ Experiment'. Deliberately perform a low-stakes task (e.g., an internal email, a quick chore) to an 80% standard. Resist the urge to fix it. Record the outcome: Did a catastrophe happen?\nWeek 4: Create a 'Good Enough' Mantra card. Schedule mandatory 'Non-Productive Time' where the goal is specifically to achieve nothing, reinforcing worth separate from output.",
     2: "Week 1: Track 'Agency Moments'. Record times during the day when you actually made a choice (even small ones like what to eat). Rate your sense of control (0-10) for each.\nWeek 2: Challenge 'Fortune Telling'. When you think 'It won't matter anyway,' ask: 'What is the evidence for this?' and 'Have I ever influenced an outcome before?' Write down 3 counter-examples.\nWeek 3: Graded Task Assignment. Pick one micro-goal (e.g., wash 3 dishes, send 1 text). Do not focus on the outcome, only the initiation. Treat the action itself as the success.\nWeek 4: Build a 'Success Log'. Every evening, write down 3 things you influenced that day. Review this log whenever the feeling of paralysis returns.",
@@ -149,18 +189,15 @@ ACTION_PLANS = {
     20: "Week 1: Trigger Awareness (Safety First). Identify specific sensory triggers (smells, sounds). Focus on grounding immediately when triggered.\nWeek 2: Cognitive Processing. Work on 'Stuck Points' (e.g., 'The world is unsafe'). Differentiate 'Then' (trauma time) vs. 'Now' (safe time).\nWeek 3: Titrated Exposure. Slowly approach safe situations you avoid due to trauma triggers. Do this only when regulated.\nWeek 4: Maintenance & Care. Build a robust support network (therapy, groups). Prioritize nervous system regulation as a lifestyle, not a fix."
 }
 
-# --- SCORING AND REPORT GENERATION ---
+# --- SCORING FUNCTIONS ---
 
-# Session state
 if 'page' not in st.session_state:
     st.session_state.page = 0
 if 'answers' not in st.session_state:
     st.session_state.answers = {}
 
-# Calculate scores
 def calculate_schema_scores(answers):
     if len(answers) != len(questions_df):
-        st.error("Submission failed: Not all 100 questions were answered.")
         return {}
         
     results = {}
@@ -172,33 +209,25 @@ def calculate_schema_scores(answers):
         for _, row in schema_rows.iterrows():
             qid = row['Question_ID']
             direction = row['Direction']
-            
             user_val = min(max(answers.get(qid, 0), 1), 5) 
-            
-            # ACE questions (61-70) are scored as binary (1 or 0) based on value > 1
             is_ace = 61 <= qid <= 70
             
             if is_ace:
-                # Contribution is 1 if score is > 1 ("Never" is 1, so 2-5 give a 1 contribution)
                 contrib = 1 if user_val > 1 else 0
                 q_max = 1
             else:
-                # Standard questions use the 1-5 score directly
                 contrib = user_val
                 q_max = 5
                 
             score = contrib if direction == 1 else (q_max + 1 - contrib)
-            
             raw_scores.append(score)
             max_possible += q_max
             
         raw_sum = sum(raw_scores)
         percentage = (raw_sum / max_possible) * 100 if max_possible > 0 else 0
         results[schema_id] = round(percentage, 1)
-        
     return results
 
-# Get top schemas
 def get_top_schemas(scores, trauma_threshold=60):
     sorted_scores = sorted(scores.items(), key=lambda x: (-x[1], x[0]))
     top_3 = [item[0] for item in sorted_scores[:3]]
@@ -210,25 +239,23 @@ def get_top_schemas(scores, trauma_threshold=60):
         root_cause_note = "Trauma Core Schema (No. 20) is highly elevated and may be a root driver of other schemas."
     return display, root_cause_note, {sid: scores[sid] for sid in display}
 
-# PDF generation using FPDF (Fix 7)
 def generate_pdf(plain_text):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    # Ensure text passed to multi_cell is correctly encoded/decoded for FPDF's internal handling
     pdf.multi_cell(0, 10, plain_text.encode('latin-1', 'replace').decode('latin-1')) 
-    
-    # FIX 7: output(dest='S') returns a string. We must explicitly encode it to bytes 
-    # before wrapping it in BytesIO, resolving the TypeError.
     pdf_bytes = BytesIO(pdf.output(dest='S').encode('latin-1')) 
-    
     pdf_bytes.seek(0)
     return pdf_bytes
 
-# --- APP LAYOUT ---
-st.set_page_config(layout="wide")
+# --- MAIN APP UI ---
 
-# 2. Change the Title and Subtitles
+st.set_page_config(layout="wide", page_title="Latent Recursion Test")
+
+# Inject scroll-to-top JS
+components.html(js_scroll_top, height=0, width=0)
+
+# Title & Headers
 st.title("Latent Recursion Test")
 st.markdown("""
 <p class='centered-subtitle'>
@@ -247,10 +274,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-
+# Pagination Logic
 questions_per_page = 10
 total_pages = (len(questions_df) + questions_per_page - 1) // questions_per_page
-    
+
 if st.session_state.page < total_pages:
     
     start = st.session_state.page * questions_per_page
@@ -260,8 +287,7 @@ if st.session_state.page < total_pages:
     st.progress((st.session_state.page + 1) / total_pages)
     st.subheader(f"Section {st.session_state.page + 1} of {total_pages}")
     
-    # --- Display Scale Key based on the questions on the page ---
-    # We use the qid range to determine the scale
+    # Scale Key
     first_qid = page_questions.iloc[0]['ID']
     is_ace_page = 61 <= first_qid <= 70
     
@@ -276,45 +302,42 @@ if st.session_state.page < total_pages:
         
     st.markdown(
         f"""
-        **SCALE FOR THIS SECTION:** **1** = {scale_min_text} 
-        **5** = {scale_max_text}
+        <div style="text-align:center; margin-bottom: 20px; font-weight:bold;">
+        SCALE: 1 = {scale_min_text} &nbsp;|&nbsp; 5 = {scale_max_text}
+        </div>
         """,
         unsafe_allow_html=True
     )
     st.markdown("---")
     
-    # --- Question Rendering Loop ---
+    # Question Loop
     for _, q in page_questions.iterrows():
         qid = q['ID']
         question_text = q['Question Text']
         
-        # Determine options for the individual question
         if 61 <= qid <= 70:
             current_options_q = ace_options
         else:
             current_options_q = standard_options
             
-        # Get stored numerical value (1-5), default to 3
         previous_val = st.session_state.answers.get(qid, 3)
-        # Convert the numerical value back to the corresponding option string
         previous_answer_str = current_options_q[previous_val - 1]
         
-        # 4. Larger Question Text implemented via custom CSS class
-        st.markdown(f"<div class='question-text'>**Q{qid}:** {question_text}</div>", unsafe_allow_html=True)
+        # FIX 1: Removed asterisks around question ID
+        st.markdown(f"<div class='question-text'>Q{qid}: {question_text}</div>", unsafe_allow_html=True)
         
-        # Use st.radio to display discrete options (text labels)
+        # FIX 2: Radio buttons now vertical (horizontal=False) so full text is visible
+        # Label visibility is hidden for the title "Select one..." but options are visible
         selected_option_str = st.radio(
-            "Select one option:", # Label set to space so question text is handled by markdown
+            "Select option:", 
             options=current_options_q, 
-            index=current_options_q.index(previous_answer_str), # Set default selection
+            index=current_options_q.index(previous_answer_str), 
             key=f"q_{qid}",
-            horizontal=True,
-            label_visibility='collapsed' # Hide the generic label
+            horizontal=False,  # Vertical layout ensures visibility of long text
+            label_visibility='collapsed'
         )
         
-        # Convert the selected string back to the required integer value (1-5)
         try:
-            # Extracts the number from the string (e.g., "3. Neutral" -> 3)
             selected_val = int(selected_option_str.split('.')[0])
             st.session_state.answers[qid] = selected_val
         except (ValueError, IndexError):
@@ -322,15 +345,14 @@ if st.session_state.page < total_pages:
             
     st.markdown("---")
     
-    # --- Navigation Buttons (Fix 5: Large Green Button) ---
+    # Navigation
     col1, col2 = st.columns(2)
     
     if st.session_state.page > 0:
         if col1.button("⬅️ Previous", key="prev_button"):
             st.session_state.page -= 1
-            st.rerun() # 5. Streamlit re-run automatically scrolls to top
+            st.rerun()
             
-    # Mandatory check logic
     page_question_ids = page_questions['ID'].tolist()
     current_page_answered = all(qid in st.session_state.answers for qid in page_question_ids)
     
@@ -339,29 +361,23 @@ if st.session_state.page < total_pages:
         st.error(f"Please answer all {len(page_question_ids)} questions on this page before continuing.")
     
     else:
-        # Proceed logic (Next or Submit)
         button_label = "Submit & See Results 🎉" if st.session_state.page == total_pages - 1 else "Next ➡️"
         
         if col2.button(button_label, key="next_submit_button"):
-            
             if st.session_state.page < total_pages - 1:
-                # Move to next page
                 st.session_state.page += 1
-                st.rerun() # 5. Streamlit re-run automatically scrolls to top
+                st.rerun()
             else:
-                # Final submission
                 if len(st.session_state.answers) == len(questions_df):
-                    st.session_state.page = total_pages # Move to results page
+                    st.session_state.page = total_pages 
                     st.rerun()
                 else:
-                    st.error("Submission failed: Not all 100 questions were answered across the assessment.")
+                    st.error("Submission failed: Not all questions were answered.")
                 
 else:
     # --- RESULTS PAGE ---
-    
-    # Run calculation only when all questions are answered
     if len(st.session_state.answers) != len(questions_df):
-        st.error("Error: Assessment data is incomplete. Please restart the assessment.")
+        st.error("Error: Assessment data is incomplete. Please restart.")
         if st.button("Restart Assessment"):
             st.session_state.page = 0
             st.session_state.answers = {}
@@ -371,7 +387,6 @@ else:
     scores = calculate_schema_scores(st.session_state.answers)
     top_schemas, root_note, top_scores = get_top_schemas(scores)
     
-    # 6. Changed Results Page Header Text
     st.header("Results")
     st.markdown("""
         <p style='text-align:center; font-size: 1.15rem; margin-bottom: 2rem;'>
@@ -394,19 +409,23 @@ else:
         st.markdown(f"### 🎯 {name} ({score}%)")
         st.markdown(f"**Root Cause:** {root}")
         st.markdown(f"**Patterns Keeping You Stuck:** {patterns}")
-        st.markdown(f"**30-Day Action Plan:**\n```\n{plan}\n```")
-        st.divider()
         
+        # FIX 4: Soothing styling for the Action Plan using HTML/CSS
+        st.markdown(f"""
+        <div class="action-plan-card">
+            <h4 class="action-plan-title">📅 30-Day Action Plan</h4>
+            <div class="action-plan-content">{plan}</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.divider()
         plain_text += f"Schema: {name} ({score}%)\n\nRoot Cause: {root}\n\nPatterns Keeping You Stuck: {patterns}\n\n30-Day Action Plan:\n{plan}\n\n---\n"
         
     if root_note:
         st.warning(root_note)
         plain_text += f"Note: {root_note}\n\n"
         
-    # PDF Download
     pdf = generate_pdf(plain_text)
-    
-    # Download button is centered due to custom CSS
     st.download_button("⬇️ Download PDF Report", pdf, "latent_recursion_report.pdf", "application/pdf")
     
     if st.button("Restart Assessment", key="restart_button_final"):
