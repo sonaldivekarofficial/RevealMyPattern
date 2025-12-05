@@ -6,6 +6,81 @@ import codecs
 from fpdf import FPDF
 import re
 
+# --- CUSTOM CSS STYLING (Changes 1, 3, 4, 5) ---
+
+CUSTOM_CSS = """
+<style>
+/* 1. Fresh Look and Centering */
+.stApp {
+    background-color: #f8f8ff; /* Light, fresh background */
+    color: #333333;
+}
+.stApp header {
+    background-color: #fff; /* White header background */
+}
+/* Center all titles, headers, and subheaders */
+h1, h2, h3, h4, h5, h6 {
+    text-align: center;
+}
+.centered-subtitle {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+/* 3. Green Radio Buttons on Selection */
+div.stRadio > label > div[data-testid="stCheckableElement"] {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    background-color: #ffffff; /* White background for unselected */
+}
+/* Green styling when checked/selected */
+div.stRadio > label > div[data-testid="stCheckableElement"]:has(input:checked) {
+    background-color: #e6ffe6; /* Very light green background */
+    border-color: #4CAF50; /* Green border */
+    color: #1a5e20; /* Darker green text color for better contrast */
+    font-weight: bold;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+/* 4. Larger Question Text */
+.question-text {
+    font-size: 1.15rem; /* Large font size for questions */
+    font-weight: 500;
+    color: #1a1a1a;
+    padding-top: 15px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    background-color: #ffffff; /* White background for question block */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* 5. Large Green Next/Submit Button */
+.stButton button {
+    width: 100%;
+    padding: 15px 24px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: white !important; /* Force white text */
+    background-color: #4CAF50; /* Green color */
+    border-radius: 8px;
+    border: none;
+    transition: background-color 0.2s;
+    margin-top: 10px;
+}
+.stButton button:hover {
+    background-color: #45a049;
+    border: none;
+}
+</style>
+"""
+
+st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
 # --- GLOBAL CONFIGURATION AND SCALES ---
 
 # Define the two distinct scale option sets (1-5)
@@ -82,12 +157,9 @@ if 'page' not in st.session_state:
 if 'answers' not in st.session_state:
     st.session_state.answers = {}
 
-# Calculate scores with fixes
+# Calculate scores
 def calculate_schema_scores(answers):
-    # Check if all questions are answered, crucial for 100% completion
     if len(answers) != len(questions_df):
-        # This should ideally be caught by the front-end check, but acts as a server-side guard
-        # Since question 70 is included in the ACE check and not the main check, we use len()
         st.error("Submission failed: Not all 100 questions were answered.")
         return {}
         
@@ -101,7 +173,6 @@ def calculate_schema_scores(answers):
             qid = row['Question_ID']
             direction = row['Direction']
             
-            # Ensure the user value is between 1 and 5
             user_val = min(max(answers.get(qid, 0), 1), 5) 
             
             # ACE questions (61-70) are scored as binary (1 or 0) based on value > 1
@@ -116,8 +187,6 @@ def calculate_schema_scores(answers):
                 contrib = user_val
                 q_max = 5
                 
-            # Score calculation: if direction=1 (positive), score=contribution. 
-            # If direction=0 (reverse), score=max_possible + 1 - contribution
             score = contrib if direction == 1 else (q_max + 1 - contrib)
             
             raw_scores.append(score)
@@ -141,33 +210,46 @@ def get_top_schemas(scores, trauma_threshold=60):
         root_cause_note = "Trauma Core Schema (No. 20) is highly elevated and may be a root driver of other schemas."
     return display, root_cause_note, {sid: scores[sid] for sid in display}
 
-# PDF generation using FPDF
+# PDF generation using FPDF (Fix 7)
 def generate_pdf(plain_text):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    # Use multi_cell for automatic line breaks
+    # Ensure text passed to multi_cell is correctly encoded/decoded for FPDF's internal handling
     pdf.multi_cell(0, 10, plain_text.encode('latin-1', 'replace').decode('latin-1')) 
-    pdf_bytes = BytesIO(bytes(pdf.output(dest='S')))
+    
+    # FIX 7: output(dest='S') returns a string. We must explicitly encode it to bytes 
+    # before wrapping it in BytesIO, resolving the TypeError.
+    pdf_bytes = BytesIO(pdf.output(dest='S').encode('latin-1')) 
+    
     pdf_bytes.seek(0)
     return pdf_bytes
 
 # --- APP LAYOUT ---
 st.set_page_config(layout="wide")
-st.title("Psychological Schema Assessment MVP")
 
-# Disclaimer
+# 2. Change the Title and Subtitles
+st.title("Latent Recursion Test")
 st.markdown("""
-<div style="padding: 10px; background-color: #f0f0f5; border-radius: 5px; border-left: 5px solid #ffa500;">
-    <strong>Disclaimer:</strong> This assessment is for informational and educational purposes only. It is not a substitute for professional mental health diagnosis or treatment. The results are based on schema therapy principles and should be discussed with a qualified mental health professional. All questions are mandatory.
-</div>
+<p class='centered-subtitle'>
+    A powerful Psychological Schema Testing tool that reveals hidden patterns dictating your behavior, decisions, and life outcomes.
+</p>
+<p class='centered-subtitle'>
+    Brought to you by <a href='http://www.mygipsy.com'>www.mygipsy.com</a>
+</p>
 """, unsafe_allow_html=True)
 st.divider()
 
+# Disclaimer
+st.markdown("""
+<div style="padding: 15px; background-color: #ffffff; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
+    <strong>Disclaimer:</strong> This assessment is for informational and educational purposes only. It is not a substitute for professional mental health diagnosis or treatment. The results are based on schema therapy principles and should be discussed with a qualified mental health professional. **All questions are mandatory.**
+</div>
+""", unsafe_allow_html=True)
+
+
 questions_per_page = 10
-total_pages = (len(questions_df) // questions_per_page)
-if len(questions_df) % questions_per_page != 0:
-    total_pages += 1
+total_pages = (len(questions_df) + questions_per_page - 1) // questions_per_page
     
 if st.session_state.page < total_pages:
     
@@ -178,7 +260,8 @@ if st.session_state.page < total_pages:
     st.progress((st.session_state.page + 1) / total_pages)
     st.subheader(f"Section {st.session_state.page + 1} of {total_pages}")
     
-    # --- Display Scale Key based on the first question of the page ---
+    # --- Display Scale Key based on the questions on the page ---
+    # We use the qid range to determine the scale
     first_qid = page_questions.iloc[0]['ID']
     is_ace_page = 61 <= first_qid <= 70
     
@@ -211,59 +294,62 @@ if st.session_state.page < total_pages:
         else:
             current_options_q = standard_options
             
-        # Get stored numerical value (1-5), default to 3 (Neutral/Sometimes)
+        # Get stored numerical value (1-5), default to 3
         previous_val = st.session_state.answers.get(qid, 3)
-        # Convert the numerical value back to the corresponding option string for the radio button index
+        # Convert the numerical value back to the corresponding option string
         previous_answer_str = current_options_q[previous_val - 1]
+        
+        # 4. Larger Question Text implemented via custom CSS class
+        st.markdown(f"<div class='question-text'>**Q{qid}:** {question_text}</div>", unsafe_allow_html=True)
         
         # Use st.radio to display discrete options (text labels)
         selected_option_str = st.radio(
-            f"**Q{qid}:** {question_text}", 
+            "Select one option:", # Label set to space so question text is handled by markdown
             options=current_options_q, 
             index=current_options_q.index(previous_answer_str), # Set default selection
             key=f"q_{qid}",
-            horizontal=True 
+            horizontal=True,
+            label_visibility='collapsed' # Hide the generic label
         )
         
         # Convert the selected string back to the required integer value (1-5)
-        # Extracts the number from the string (e.g., "3. Neutral" -> 3)
         try:
+            # Extracts the number from the string (e.g., "3. Neutral" -> 3)
             selected_val = int(selected_option_str.split('.')[0])
             st.session_state.answers[qid] = selected_val
         except (ValueError, IndexError):
-            # Fallback in case of unexpected string format, defaults to Neutral/Sometimes (3)
             st.session_state.answers[qid] = 3 
             
     st.markdown("---")
     
-    # --- Navigation Buttons ---
+    # --- Navigation Buttons (Fix 5: Large Green Button) ---
     col1, col2 = st.columns(2)
     
     if st.session_state.page > 0:
-        if col1.button("⬅️ Previous"):
+        if col1.button("⬅️ Previous", key="prev_button"):
             st.session_state.page -= 1
-            st.rerun()
+            st.rerun() # 5. Streamlit re-run automatically scrolls to top
             
-    # Check if all questions on the current page have been answered (mandatory check)
-    current_page_answered_count = sum(1 for qid in page_questions['ID'] if qid in st.session_state.answers)
+    # Mandatory check logic
+    page_question_ids = page_questions['ID'].tolist()
+    current_page_answered = all(qid in st.session_state.answers for qid in page_question_ids)
     
-    if current_page_answered_count < len(page_questions):
-        # Display a warning if not all questions on the page are answered
-        if col2.button("Next / Submit ➡️"):
-            st.error(f"Please answer all {len(page_questions)} questions on this page before continuing.")
+    if not current_page_answered:
+        col2.button("Next / Submit ➡️", disabled=True, key="disabled_next")
+        st.error(f"Please answer all {len(page_question_ids)} questions on this page before continuing.")
     
     else:
         # Proceed logic (Next or Submit)
         button_label = "Submit & See Results 🎉" if st.session_state.page == total_pages - 1 else "Next ➡️"
         
-        if col2.button(button_label):
+        if col2.button(button_label, key="next_submit_button"):
             
             if st.session_state.page < total_pages - 1:
                 # Move to next page
                 st.session_state.page += 1
-                st.rerun()
+                st.rerun() # 5. Streamlit re-run automatically scrolls to top
             else:
-                # Submit logic (Final page)
+                # Final submission
                 if len(st.session_state.answers) == len(questions_df):
                     st.session_state.page = total_pages # Move to results page
                     st.rerun()
@@ -285,11 +371,17 @@ else:
     scores = calculate_schema_scores(st.session_state.answers)
     top_schemas, root_note, top_scores = get_top_schemas(scores)
     
-    st.header("Your Top Schemas & Insights")
-    st.markdown("Below are the top schemas driving your patterns and tailored action plans.")
+    # 6. Changed Results Page Header Text
+    st.header("Results")
+    st.markdown("""
+        <p style='text-align:center; font-size: 1.15rem; margin-bottom: 2rem;'>
+            Based on your input, these are the top 3 psychological patterns potentially affecting your personal growth. 
+            Plus, a 30-day action plan to readjust and find balance.
+        </p>
+    """, unsafe_allow_html=True)
     st.divider()
     
-    plain_text = "--- Psychological Schema Assessment Report ---\n\n"
+    plain_text = "--- Latent Recursion Test Report ---\n\n"
     
     for sid in top_schemas:
         schema_row = schemas_df[schemas_df['Schema'] == sid].iloc[0]
@@ -313,9 +405,11 @@ else:
         
     # PDF Download
     pdf = generate_pdf(plain_text)
-    st.download_button("⬇️ Download PDF Report", pdf, "schema_report.pdf", "application/pdf")
     
-    if st.button("Restart Assessment"):
+    # Download button is centered due to custom CSS
+    st.download_button("⬇️ Download PDF Report", pdf, "latent_recursion_report.pdf", "application/pdf")
+    
+    if st.button("Restart Assessment", key="restart_button_final"):
         st.session_state.page = 0
         st.session_state.answers = {}
         st.rerun()
