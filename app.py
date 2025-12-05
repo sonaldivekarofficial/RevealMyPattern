@@ -4,6 +4,28 @@ from io import BytesIO
 import csv
 import codecs
 from fpdf import FPDF
+import re
+
+# --- GLOBAL CONFIGURATION AND SCALES ---
+
+# Define the two distinct scale option sets (1-5)
+standard_options = [
+    "1. Strongly Disagree",
+    "2. Disagree",
+    "3. Neutral",
+    "4. Agree",
+    "5. Strongly Agree"
+]
+
+ace_options = [
+    "1. Never",
+    "2. Rarely",
+    "3. Sometimes",
+    "4. Often",
+    "5. Very Often"
+]
+
+# --- UTILITY FUNCTIONS ---
 
 # Smart CSV loader to handle encoding issues
 def load_csv_smart(filename):
@@ -12,17 +34,23 @@ def load_csv_smart(filename):
     for enc in encodings:
         for sep in separators:
             try:
-                return pd.read_csv(filename, encoding=enc, sep=sep, engine='python')
+                # Added 'on_bad_lines=skip' for robustness
+                return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
             except:
                 pass
     raise ValueError(f"Could not load {filename} with any encoding/separator combo.")
 
 # Load data
-questions_df = load_csv_smart("Updated_100Q_Assessment.csv")
-map_df = load_csv_smart("Schema_Weighted_Score_Map.csv")
-schemas_df = load_csv_smart("20_Core_Schemas.csv")
+try:
+    questions_df = load_csv_smart("Updated_100Q_Assessment.csv")
+    map_df = load_csv_smart("Schema_Weighted_Score_Map.csv")
+    schemas_df = load_csv_smart("20_Core_Schemas.csv")
+except ValueError as e:
+    st.error(f"Error loading required data files: {e}")
+    st.stop()
 
-# Action plans
+
+# Action plans (Data remains the same)
 ACTION_PLANS = {
     1: "Week 1: Keep a 'Perfectionism Log'. Record situations where you felt the urge to be perfect. Note the specific standard you felt you had to meet and rate your anxiety (1-10). Identify if the standard was self-imposed or external.\nWeek 2: Use 'Cost-Benefit Analysis'. List the advantages (e.g., praise, safety) vs. disadvantages (e.g., burnout, time loss) of your high standards. Challenge the 'All-or-Nothing' distortion: 'If I'm not perfect, I'm a failure.'\nWeek 3: The 'B+ Experiment'. Deliberately perform a low-stakes task (e.g., an internal email, a quick chore) to an 80% standard. Resist the urge to fix it. Record the outcome: Did a catastrophe happen?\nWeek 4: Create a 'Good Enough' Mantra card. Schedule mandatory 'Non-Productive Time' where the goal is specifically to achieve nothing, reinforcing worth separate from output.",
     2: "Week 1: Track 'Agency Moments'. Record times during the day when you actually made a choice (even small ones like what to eat). Rate your sense of control (0-10) for each.\nWeek 2: Challenge 'Fortune Telling'. When you think 'It won't matter anyway,' ask: 'What is the evidence for this?' and 'Have I ever influenced an outcome before?' Write down 3 counter-examples.\nWeek 3: Graded Task Assignment. Pick one micro-goal (e.g., wash 3 dishes, send 1 text). Do not focus on the outcome, only the initiation. Treat the action itself as the success.\nWeek 4: Build a 'Success Log'. Every evening, write down 3 things you influenced that day. Review this log whenever the feeling of paralysis returns.",
@@ -46,6 +74,8 @@ ACTION_PLANS = {
     20: "Week 1: Trigger Awareness (Safety First). Identify specific sensory triggers (smells, sounds). Focus on grounding immediately when triggered.\nWeek 2: Cognitive Processing. Work on 'Stuck Points' (e.g., 'The world is unsafe'). Differentiate 'Then' (trauma time) vs. 'Now' (safe time).\nWeek 3: Titrated Exposure. Slowly approach safe situations you avoid due to trauma triggers. Do this only when regulated.\nWeek 4: Maintenance & Care. Build a robust support network (therapy, groups). Prioritize nervous system regulation as a lifestyle, not a fix."
 }
 
+# --- SCORING AND REPORT GENERATION ---
+
 # Session state
 if 'page' not in st.session_state:
     st.session_state.page = 0
@@ -54,30 +84,49 @@ if 'answers' not in st.session_state:
 
 # Calculate scores with fixes
 def calculate_schema_scores(answers):
+    # Check if all questions are answered, crucial for 100% completion
     if len(answers) != len(questions_df):
-        raise ValueError("All questions must be answered.")
+        # This should ideally be caught by the front-end check, but acts as a server-side guard
+        # Since question 70 is included in the ACE check and not the main check, we use len()
+        st.error("Submission failed: Not all 100 questions were answered.")
+        return {}
+        
     results = {}
     for schema_id in map_df['Schema_ID'].unique():
         schema_rows = map_df[map_df['Schema_ID'] == schema_id]
         raw_scores = []
         max_possible = 0
+        
         for _, row in schema_rows.iterrows():
             qid = row['Question_ID']
             direction = row['Direction']
-            user_val = min(max(answers[qid], 1), 5)
+            
+            # Ensure the user value is between 1 and 5
+            user_val = min(max(answers.get(qid, 0), 1), 5) 
+            
+            # ACE questions (61-70) are scored as binary (1 or 0) based on value > 1
             is_ace = 61 <= qid <= 70
+            
             if is_ace:
+                # Contribution is 1 if score is > 1 ("Never" is 1, so 2-5 give a 1 contribution)
                 contrib = 1 if user_val > 1 else 0
                 q_max = 1
             else:
+                # Standard questions use the 1-5 score directly
                 contrib = user_val
                 q_max = 5
-            score = contrib if direction == 1 else (q_max + 1 - contrib)  # Handles binary (1+1-1=1) and 5-scale (6-contrib)
+                
+            # Score calculation: if direction=1 (positive), score=contribution. 
+            # If direction=0 (reverse), score=max_possible + 1 - contribution
+            score = contrib if direction == 1 else (q_max + 1 - contrib)
+            
             raw_scores.append(score)
             max_possible += q_max
+            
         raw_sum = sum(raw_scores)
         percentage = (raw_sum / max_possible) * 100 if max_possible > 0 else 0
         results[schema_id] = round(percentage, 1)
+        
     return results
 
 # Get top schemas
@@ -89,7 +138,7 @@ def get_top_schemas(scores, trauma_threshold=60):
     root_cause_note = None
     if trauma_score > trauma_threshold and 20 not in top_3:
         display.append(20)
-        root_cause_note = "Trauma Core Schema is likely a root driver."
+        root_cause_note = "Trauma Core Schema (No. 20) is highly elevated and may be a root driver of other schemas."
     return display, root_cause_note, {sid: scores[sid] for sid in display}
 
 # PDF generation using FPDF
@@ -97,44 +146,151 @@ def generate_pdf(plain_text):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    for line in plain_text.split('\n'):
-        pdf.cell(200, 10, txt=line, ln=1, align='L')
+    # Use multi_cell for automatic line breaks
+    pdf.multi_cell(0, 10, plain_text.encode('latin-1', 'replace').decode('latin-1')) 
     pdf_bytes = BytesIO(bytes(pdf.output(dest='S')))
     pdf_bytes.seek(0)
     return pdf_bytes
 
-# App layout
+# --- APP LAYOUT ---
+st.set_page_config(layout="wide")
 st.title("Psychological Schema Assessment MVP")
 
+# Disclaimer
+st.markdown("""
+<div style="padding: 10px; background-color: #f0f0f5; border-radius: 5px; border-left: 5px solid #ffa500;">
+    <strong>Disclaimer:</strong> This assessment is for informational and educational purposes only. It is not a substitute for professional mental health diagnosis or treatment. The results are based on schema therapy principles and should be discussed with a qualified mental health professional. All questions are mandatory.
+</div>
+""", unsafe_allow_html=True)
+st.divider()
+
 questions_per_page = 10
-total_pages = (len(questions_df) // questions_per_page) + 1
+total_pages = (len(questions_df) // questions_per_page)
+if len(questions_df) % questions_per_page != 0:
+    total_pages += 1
+    
 if st.session_state.page < total_pages:
+    
     start = st.session_state.page * questions_per_page
     end = start + questions_per_page
     page_questions = questions_df.iloc[start:end]
+    
     st.progress((st.session_state.page + 1) / total_pages)
     st.subheader(f"Section {st.session_state.page + 1} of {total_pages}")
+    
+    # --- Display Scale Key based on the first question of the page ---
+    first_qid = page_questions.iloc[0]['ID']
+    is_ace_page = 61 <= first_qid <= 70
+    
+    if is_ace_page:
+        scale_min_text = "Never"
+        scale_max_text = "Very Often"
+        current_options = ace_options
+    else:
+        scale_min_text = "Strongly Disagree"
+        scale_max_text = "Strongly Agree"
+        current_options = standard_options
+        
+    st.markdown(
+        f"""
+        **SCALE FOR THIS SECTION:** **1** = {scale_min_text} 
+        **5** = {scale_max_text}
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown("---")
+    
+    # --- Question Rendering Loop ---
     for _, q in page_questions.iterrows():
         qid = q['ID']
-        label = f"{q['Question Text']} ({q['Scale Type']})"
-        options = [q['Scale Min (1)'], " ", " ", " ", q['Scale Max (5)']]
-        st.session_state.answers[qid] = st.slider(label, 1, 5, st.session_state.answers.get(qid, 3))
+        question_text = q['Question Text']
+        
+        # Determine options for the individual question
+        if 61 <= qid <= 70:
+            current_options_q = ace_options
+        else:
+            current_options_q = standard_options
+            
+        # Get stored numerical value (1-5), default to 3 (Neutral/Sometimes)
+        previous_val = st.session_state.answers.get(qid, 3)
+        # Convert the numerical value back to the corresponding option string for the radio button index
+        previous_answer_str = current_options_q[previous_val - 1]
+        
+        # Use st.radio to display discrete options (text labels)
+        selected_option_str = st.radio(
+            f"**Q{qid}:** {question_text}", 
+            options=current_options_q, 
+            index=current_options_q.index(previous_answer_str), # Set default selection
+            key=f"q_{qid}",
+            horizontal=True 
+        )
+        
+        # Convert the selected string back to the required integer value (1-5)
+        # Extracts the number from the string (e.g., "3. Neutral" -> 3)
+        try:
+            selected_val = int(selected_option_str.split('.')[0])
+            st.session_state.answers[qid] = selected_val
+        except (ValueError, IndexError):
+            # Fallback in case of unexpected string format, defaults to Neutral/Sometimes (3)
+            st.session_state.answers[qid] = 3 
+            
+    st.markdown("---")
+    
+    # --- Navigation Buttons ---
     col1, col2 = st.columns(2)
+    
     if st.session_state.page > 0:
-        if col1.button("Previous"):
+        if col1.button("⬅️ Previous"):
             st.session_state.page -= 1
             st.rerun()
-    if col2.button("Next" if st.session_state.page < total_pages - 1 else "Submit"):
-        if len(st.session_state.answers) == len(questions_df):
-            st.session_state.page = total_pages
-        else:
-            st.session_state.page += 1
-        st.rerun()
+            
+    # Check if all questions on the current page have been answered (mandatory check)
+    current_page_answered_count = sum(1 for qid in page_questions['ID'] if qid in st.session_state.answers)
+    
+    if current_page_answered_count < len(page_questions):
+        # Display a warning if not all questions on the page are answered
+        if col2.button("Next / Submit ➡️"):
+            st.error(f"Please answer all {len(page_questions)} questions on this page before continuing.")
+    
+    else:
+        # Proceed logic (Next or Submit)
+        button_label = "Submit & See Results 🎉" if st.session_state.page == total_pages - 1 else "Next ➡️"
+        
+        if col2.button(button_label):
+            
+            if st.session_state.page < total_pages - 1:
+                # Move to next page
+                st.session_state.page += 1
+                st.rerun()
+            else:
+                # Submit logic (Final page)
+                if len(st.session_state.answers) == len(questions_df):
+                    st.session_state.page = total_pages # Move to results page
+                    st.rerun()
+                else:
+                    st.error("Submission failed: Not all 100 questions were answered across the assessment.")
+                
 else:
+    # --- RESULTS PAGE ---
+    
+    # Run calculation only when all questions are answered
+    if len(st.session_state.answers) != len(questions_df):
+        st.error("Error: Assessment data is incomplete. Please restart the assessment.")
+        if st.button("Restart Assessment"):
+            st.session_state.page = 0
+            st.session_state.answers = {}
+            st.rerun()
+        st.stop()
+        
     scores = calculate_schema_scores(st.session_state.answers)
     top_schemas, root_note, top_scores = get_top_schemas(scores)
-    st.subheader("Your Top Schemas & Insights")
-    plain_text = ""
+    
+    st.header("Your Top Schemas & Insights")
+    st.markdown("Below are the top schemas driving your patterns and tailored action plans.")
+    st.divider()
+    
+    plain_text = "--- Psychological Schema Assessment Report ---\n\n"
+    
     for sid in top_schemas:
         schema_row = schemas_df[schemas_df['Schema'] == sid].iloc[0]
         name = schema_row['Schema Name']
@@ -142,18 +298,23 @@ else:
         root = schema_row['Root Causes (Childhood Drivers)']
         patterns = schema_row['Symptoms & Behavioral Loops']
         plan = ACTION_PLANS.get(sid, 'Custom 30-day plan based on schema therapy principles.')
-        st.write(f"**{name} ({score}%)**")
-        st.write(f"**Root Cause:** {root}")
-        st.write(f"**Patterns Keeping You Stuck:** {patterns}")
-        st.write(f"**30-Day Action Plan:**\n{plan}")
+        
+        st.markdown(f"### 🎯 {name} ({score}%)")
+        st.markdown(f"**Root Cause:** {root}")
+        st.markdown(f"**Patterns Keeping You Stuck:** {patterns}")
+        st.markdown(f"**30-Day Action Plan:**\n```\n{plan}\n```")
         st.divider()
-        plain_text += f"{name} ({score}%)\n\nRoot Cause: {root}\n\nPatterns Keeping You Stuck: {patterns}\n\n30-Day Action Plan:\n{plan}\n\n---\n"
+        
+        plain_text += f"Schema: {name} ({score}%)\n\nRoot Cause: {root}\n\nPatterns Keeping You Stuck: {patterns}\n\n30-Day Action Plan:\n{plan}\n\n---\n"
+        
     if root_note:
         st.warning(root_note)
-        plain_text += f"Note: {root_note}\n"
+        plain_text += f"Note: {root_note}\n\n"
+        
     # PDF Download
     pdf = generate_pdf(plain_text)
-    st.download_button("Download PDF Report", pdf, "schema_report.pdf", "application/pdf")
+    st.download_button("⬇️ Download PDF Report", pdf, "schema_report.pdf", "application/pdf")
+    
     if st.button("Restart Assessment"):
         st.session_state.page = 0
         st.session_state.answers = {}
