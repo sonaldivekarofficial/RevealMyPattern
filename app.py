@@ -41,34 +41,32 @@ h1, h2, h3, h4, h5, h6 {
 
 /* --- RADIO BUTTON GRID LAYOUT FIX --- */
 
-/* 1. Force Text Color to Black (High Contrast) */
+/* 1. Force Text Color to dark and Bold (Requirement 1) */
 div[role="radiogroup"] label p {
-    color: #000000 !important;
-    font-weight: 500;
-    /* This ensures text is black on white cards (Requirement 1) */
+    color: #1a1a1a !important; /* Very dark gray/near black */
+    font-weight: 700 !important; /* Make it Bold */
 }
 
-/* 2. Container Styling - Create a Grid (Requirement 2) */
+/* 2. Container Styling - Create a Grid (Requirement 2: Compact Layout) */
 div[role="radiogroup"] {
     display: flex;
     flex-wrap: wrap; /* Allows wrapping on smaller screens */
-    gap: 10px;
+    gap: 8px; /* Slightly reduced gap for a more compact look */
     width: 100%;
 }
 
 /* 3. Individual Option Styling (Cards) */
 div[role="radiogroup"] > label {
     background-color: #ffffff;
-    padding: 12px 15px;
+    padding: 10px 12px; /* Reduced padding for compact look */
     border-radius: 8px;
     border: 1px solid #d0d0d0;
     cursor: pointer;
     transition: all 0.2s ease;
     
     /* Grid Logic: Take up approx 48% of space (2 per row) */
-    /* This implements the side-by-side layout (Requirement 2) */
-    flex: 1 1 45%; 
-    min-width: 200px; /* Ensures graceful wrapping on small screens */
+    flex: 1 1 48%; /* Slightly increased size for better fit */
+    min-width: 180px; /* Ensures graceful wrapping on small screens */
     
     display: flex;
     align-items: center;
@@ -83,7 +81,7 @@ div[role="radiogroup"] > label:has(input:checked) {
     box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
 }
 
-/* Ensure the radio circle itself is green */
+/* Ensure the radio circle itself is highlighted */
 div[role="radiogroup"] > label:has(input:checked) div[data-testid="stMarkdownContainer"] > p {
     color: #1b5e20 !important; /* Dark green text */
     font-weight: bold;
@@ -112,8 +110,7 @@ div.stButton button:disabled {
     color: #666666 !important;
 }
 
-/* --- DOWNLOAD PDF BUTTON (Requirement 4) --- */
-/* Targetting the specific download button data-testid */
+/* --- DOWNLOAD PDF BUTTON (Previous Requirement 4: Light Orange) --- */
 div[data-testid="stDownloadButton"] button {
     /* light orange color */
     background-color: #f97316 !important; 
@@ -162,7 +159,6 @@ div[data-testid="stDownloadButton"] button:hover {
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # --- JAVASCRIPT FOR SCROLL TO TOP (Requirement 3) ---
-# This is placed in a function so it can be called explicitly on navigation
 def scroll_to_top():
     """Injects JavaScript to force the browser to scroll to the top of the page."""
     js_scroll_top = """
@@ -197,7 +193,7 @@ ace_options = [
     "5. Very Often"
 ]
 
-# --- UTILITY FUNCTIONS ---
+# --- UTILITY FUNCTIONS (Unchanged) ---
 
 def load_csv_smart(filename):
     encodings = ['utf-8', 'utf-16', 'cp1252', 'latin1', 'iso-8859-1', 'mbcs']
@@ -205,20 +201,14 @@ def load_csv_smart(filename):
     for enc in encodings:
         for sep in separators:
             try:
-                # Assuming the required CSV files exist in the environment
-                # In a real Streamlit app, this would use st.file_uploader or pre-uploaded files
-                # Since this is a self-contained code block, we assume they are accessible
-                # This function is not modified, only retained for context.
+                # Placeholder comment: If this were a real Streamlit app, this function would load data.
                 return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
             except:
                 pass
     raise ValueError(f"Could not load {filename} with any encoding/separator combo.")
 
-# Load Data - Removed actual loading to make file runnable, as CSVs are not provided
-# Assuming dataframes are loaded successfully for the rest of the logic
+# Load Data - Using placeholder data structures to allow the rest of the app to run without actual file access
 try:
-    # Placeholder data structures to allow the rest of the app to run without actual file access
-    # In a real environment, uncommenting the original load_csv_smart lines would work.
     questions_df = pd.DataFrame({
         'ID': range(1, 101), 
         'Question Text': [f"Sample Question {i}" for i in range(1, 101)]
@@ -248,7 +238,7 @@ ACTION_PLANS = {
     20: "Week 1: Trigger Awareness (Safety First). Identify specific sensory triggers (smells, sounds). Focus on grounding immediately when triggered.\nWeek 2: Cognitive Processing. Work on 'Stuck Points' (e.g., 'The world is unsafe'). Differentiate 'Then' (trauma time) vs. 'Now' (safe time).\nWeek 3: Titrated Exposure. Slowly approach safe situations you avoid due to trauma triggers. Do this only when regulated.\nWeek 4: Maintenance & Care. Build a robust support network (therapy, groups). Prioritize nervous system regulation as a lifestyle, not a fix."
 }
 
-# --- SCORING FUNCTIONS ---
+# --- SCORING FUNCTIONS (Unchanged) ---
 
 if 'page' not in st.session_state:
     st.session_state.page = 0
@@ -309,7 +299,7 @@ def generate_pdf(plain_text):
     pdf_bytes.seek(0)
     return pdf_bytes
 
-# --- HELPER FUNCTION FOR ACTION PLAN FORMATTING ---
+# --- HELPER FUNCTION FOR ACTION PLAN FORMATTING (Unchanged) ---
 def format_action_plan_html(plan_text):
     """
     Parses the Action Plan text and returns styled HTML.
@@ -510,7 +500,7 @@ else:
         
     pdf = generate_pdf(plain_text)
     
-    # Requirement 4: The custom CSS targets the download button to make it light orange.
+    # Download button remains light orange as per previous request
     st.download_button("⬇️ Download PDF Report", pdf, "latent_recursion_report.pdf", "application/pdf")
     
     if st.button("Restart Assessment", key="restart_button_final"):
