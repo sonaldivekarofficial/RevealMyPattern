@@ -35,40 +35,59 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.2rem;
     font-weight: 600;
     color: #1a1a1a;
-    margin-top: 20px;
-    margin-bottom: 5px;
+    margin-top: 25px;
+    margin-bottom: 10px;
 }
 
-/* Radio Button Styling */
-/* Ensure the text is visible and provide spacing */
-div.stRadio > label {
-    font-size: 1rem;
-    color: #333;
+/* --- RADIO BUTTON GRID LAYOUT FIX --- */
+
+/* 1. Force Text Color to Black */
+div[role="radiogroup"] label p {
+    color: #000000 !important;
+    font-weight: 500;
 }
 
-/* Style the container of the radio options to look like cards */
+/* 2. Container Styling - Create a Grid */
+div[role="radiogroup"] {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+}
+
+/* 3. Individual Option Styling (Cards) */
 div[role="radiogroup"] > label {
     background-color: #ffffff;
-    padding: 10px 15px;
+    padding: 12px 15px;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    margin-bottom: 8px;
-    transition: all 0.2s ease;
+    border: 1px solid #d0d0d0;
     cursor: pointer;
-    display: flex; /* Ensure alignment */
-    width: 100%;
+    transition: all 0.2s ease;
+    
+    /* Grid Logic: Take up approx 48% of space (2 per row) */
+    flex: 1 1 45%; 
+    min-width: 200px; /* If screen is too small, wrap to full width */
+    
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-right: 0px !important; /* Override streamlit default */
 }
 
 /* Green Highlight for Selected Option */
 div[role="radiogroup"] > label:has(input:checked) {
     background-color: #e8f5e9 !important; /* Light green background */
     border-color: #4CAF50 !important;      /* Green border */
-    color: #1b5e20 !important;             /* Dark green text */
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.2);
+    box-shadow: 0 2px 5px rgba(76, 175, 80, 0.3);
 }
 
-/* Navigation Buttons */
+/* Ensure the radio circle itself is green */
+div[role="radiogroup"] > label:has(input:checked) div[data-testid="stMarkdownContainer"] > p {
+    color: #1b5e20 !important; /* Dark green text */
+    font-weight: bold;
+}
+
+/* --- NAVIGATION BUTTONS --- */
 .stButton button {
     width: 100%;
     padding: 12px 24px;
@@ -78,37 +97,48 @@ div[role="radiogroup"] > label:has(input:checked) {
     background-color: #4CAF50; /* Green */
     border-radius: 8px;
     border: none;
-    margin-top: 15px;
+    margin-top: 25px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 .stButton button:hover {
     background-color: #45a049;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 .stButton button:disabled {
     background-color: #cccccc;
     color: #666666 !important;
 }
 
-/* Action Plan Card Styling (Soothing Green) */
+/* --- ACTION PLAN CARD STYLING --- */
 .action-plan-card {
-    background-color: #f1f8e9;
+    background-color: #f1f8e9; /* Soothing Light Green */
     padding: 25px;
     border-radius: 12px;
-    border-left: 6px solid #8bc34a;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border-left: 6px solid #8bc34a; /* Accent Green */
+    margin-top: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 .action-plan-title {
     color: #2e7d32;
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 10px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 15px;
     margin-top: 0;
+    border-bottom: 1px solid #c5e1a5;
+    padding-bottom: 10px;
 }
 .action-plan-content {
-    white-space: pre-wrap;
-    line-height: 1.6;
     color: #333;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+.week-bold {
+    font-weight: 700;
+    color: #1b5e20;
+    font-size: 1.05rem;
+    display: inline-block;
+    margin-top: 10px;
 }
 </style>
 """
@@ -116,7 +146,6 @@ div[role="radiogroup"] > label:has(input:checked) {
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
 # --- JAVASCRIPT FOR SCROLL TO TOP ---
-# This script injects a scroll command every time the app reruns (e.g., page change)
 js_scroll_top = """
 <script>
     var body = window.parent.document.body;
@@ -248,6 +277,25 @@ def generate_pdf(plain_text):
     pdf_bytes.seek(0)
     return pdf_bytes
 
+# --- HELPER FUNCTION FOR ACTION PLAN FORMATTING ---
+def format_action_plan_html(plan_text):
+    """
+    Parses the Action Plan text and returns styled HTML.
+    Bold 'Week X:' and add breaks.
+    """
+    # Use Regex to wrap 'Week X:' in a span with bold class
+    # The pattern looks for 'Week' followed by a digit and a colon
+    formatted = re.sub(
+        r'(Week \d+:)', 
+        r'<br><span class="week-bold">\1</span>', 
+        plan_text
+    )
+    # Remove the very first <br> if it exists at the start
+    if formatted.startswith('<br>'):
+        formatted = formatted[4:]
+        
+    return formatted
+
 # --- MAIN APP UI ---
 
 st.set_page_config(layout="wide", page_title="Latent Recursion Test")
@@ -323,17 +371,15 @@ if st.session_state.page < total_pages:
         previous_val = st.session_state.answers.get(qid, 3)
         previous_answer_str = current_options_q[previous_val - 1]
         
-        # FIX 1: Removed asterisks around question ID
         st.markdown(f"<div class='question-text'>Q{qid}: {question_text}</div>", unsafe_allow_html=True)
         
-        # FIX 2: Radio buttons now vertical (horizontal=False) so full text is visible
-        # Label visibility is hidden for the title "Select one..." but options are visible
+        # Radio buttons (Vertical, but styled as Grid via CSS)
         selected_option_str = st.radio(
             "Select option:", 
             options=current_options_q, 
             index=current_options_q.index(previous_answer_str), 
             key=f"q_{qid}",
-            horizontal=False,  # Vertical layout ensures visibility of long text
+            horizontal=False, # We let CSS handle the side-by-side layout
             label_visibility='collapsed'
         )
         
@@ -406,15 +452,18 @@ else:
         patterns = schema_row['Symptoms & Behavioral Loops']
         plan = ACTION_PLANS.get(sid, 'Custom 30-day plan based on schema therapy principles.')
         
+        # Apply HTML formatting to the plan (Bold Weeks, add spacing)
+        formatted_plan_html = format_action_plan_html(plan)
+        
         st.markdown(f"### 🎯 {name} ({score}%)")
         st.markdown(f"**Root Cause:** {root}")
         st.markdown(f"**Patterns Keeping You Stuck:** {patterns}")
         
-        # FIX 4: Soothing styling for the Action Plan using HTML/CSS
+        # Display the formatted Action Plan
         st.markdown(f"""
         <div class="action-plan-card">
             <h4 class="action-plan-title">📅 30-Day Action Plan</h4>
-            <div class="action-plan-content">{plan}</div>
+            <div class="action-plan-content">{formatted_plan_html}</div>
         </div>
         """, unsafe_allow_html=True)
         
