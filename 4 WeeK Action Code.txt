@@ -1,0 +1,520 @@
+﻿import React, { useState } from 'react';
+import { BookOpen, Brain, Activity, Shield, ChevronRight, Printer, ArrowLeft, Leaf, AlertCircle } from 'lucide-react';
+import jsPDF from 'jspdf';
+
+
+const schemas = [
+  {
+    id: 1,
+    category: "Self-Worth and Achievement",
+    name: "Conditional Self-Worth (Perfectionism)",
+    causes: "Early affection/praise was contingent on flawless performance; high parental criticism.",
+    symptoms: "Fear of failure, crippling procrastination, chronic overworking, inability to accept praise.",
+    manifestations: "Imposter syndrome, shame spiral, insomnia, GI distress, burnout.",
+    evidence: "Based on CBT techniques from Antony & Swinson's 'When Perfect Isn't Good Enough' (2009).",
+    plan: {
+      week1: "Keep a 'Perfectionism Log'. Record situations where you felt the urge to be perfect. Note the specific standard you felt you had to meet and rate your anxiety (1-10). Identify if the standard was self-imposed or external.",
+      week2: "Use 'Cost-Benefit Analysis'. List the advantages (e.g., praise, safety) vs. disadvantages (e.g., burnout, time loss) of your high standards. Challenge the 'All-or-Nothing' distortion: 'If I'm not perfect, I'm a failure.'",
+      week3: "The 'B+ Experiment'. Deliberately perform a low-stakes task (e.g., an internal email, a quick chore) to an 80% standard. Resist the urge to fix it. Record the outcome: Did a catastrophe happen?",
+      week4: "Create a 'Good Enough' Mantra card. Schedule mandatory 'Non-Productive Time' where the goal is specifically to achieve nothing, reinforcing worth separate from output."
+    }
+  },
+  {
+    id: 2,
+    category: "Self-Worth and Achievement",
+    name: "Learned Helplessness & Fatalism",
+    causes: "Repeated experience where effort yielded no reward; lack of autonomy in chaotic homes.",
+    symptoms: "Low initiative, belief that luck dictates life, apathy, avoidance of planning.",
+    manifestations: "Chronic depression, external locus of control, low energy, poor financial planning.",
+    evidence: "Draws from behavioral activation in CBT for depression (Martell et al., 2010).",
+    plan: {
+      week1: "Track 'Agency Moments'. Record times during the day when you actually made a choice (even small ones like what to eat). Rate your sense of control (0-10) for each.",
+      week2: "Challenge 'Fortune Telling'. When you think 'It won't matter anyway,' ask: 'What is the evidence for this?' and 'Have I ever influenced an outcome before?' Write down 3 counter-examples.",
+      week3: "Graded Task Assignment. Pick one micro-goal (e.g., wash 3 dishes, send 1 text). Do not focus on the outcome, only the initiation. Treat the action itself as the success.",
+      week4: "Build a 'Success Log'. Every evening, write down 3 things you influenced that day. Review this log whenever the feeling of paralysis returns."
+    }
+  },
+  {
+    id: 3,
+    category: "Self-Worth and Achievement",
+    name: "Fixed Mindset & Rigidity",
+    causes: "Belief that talent is innate; labeling; avoidance of vulnerability/mistakes.",
+    symptoms: "Resistance to change, giving up easily, viewing failure as stupidity, defensive to criticism.",
+    manifestations: "Intellectual stagnation, stress response to maintaining a facade, inability to adapt.",
+    evidence: "Inspired by Dweck's Growth Mindset research (2006) integrated with CBT reframing.",
+    plan: {
+      week1: "Identify 'Fixed Triggers'. Notice when you say 'I can't do this' or 'I'm not good at this.' Label these as 'Fixed Mindset Thoughts' rather than facts.",
+      week2: "Reframe 'Failure' to 'Data'. When you make a mistake, complete this sentence: 'This mistake teaches me that I need to adjust X, not that I am Y.'",
+      week3: "The 'Beginner's Mind' Experiment. Engage in a hobby or task you are terrible at for 15 minutes. Observe the discomfort of not being expert. Allow yourself to be clumsy without judgment.",
+      week4: "Establish a 'Yet' Habit. Append the word 'yet' to every inability statement (e.g., 'I don't understand this code... yet'). Schedule one weekly learning session for a new skill."
+    }
+  },
+  {
+    id: 4,
+    category: "Self-Worth and Achievement",
+    name: "Inner Critic Dominance (Shame Core)",
+    causes: "Constant criticism or high shame/blame during childhood; internalized parental harshness.",
+    symptoms: "Inability to forgive oneself, chronic guilt, self-sabotage, minimizing achievements.",
+    manifestations: "High anxiety, self-hatred, self-neglect, chronic pain, reliance on coping mechanisms.",
+    evidence: "Based on self-compassion practices from Neff's research (2011) and CBT for shame.",
+    plan: {
+      week1: "The 'Critic Audit'. Give your inner critic a name (e.g., 'The Judge'). Tally how many times 'The Judge' speaks to you daily. Note the tone—is it angry, cold, or mocking?",
+      week2: "Compassionate Re-framing. For every critical thought, write a 'Compassionate Response' as if speaking to a friend or child. Example: Change 'You idiot' to 'You made a human mistake.'",
+      week3: "Mirror Work. Stand in front of a mirror for 2 minutes daily. Look at yourself and say 3 factual, neutral, or positive things. Sit with the discomfort this causes.",
+      week4: "The 'Good Enough' Letter. Write a letter of forgiveness to yourself for a past mistake. Keep a 'Credit List'—daily things you did right, no matter how small."
+    }
+  },
+  {
+    id: 5,
+    category: "Relationship and Attachment",
+    name: "Anxious Attachment & Abandonment Fear",
+    causes: "Inconsistent caregiving; threats of loss or separation.",
+    symptoms: "Hyper-vigilance, high need for reassurance, misinterpreting neutral actions as rejection.",
+    manifestations: "Relationship cycling, panic, mood swings, hyper-arousal, poor sleep.",
+    evidence: "Adapted from attachment-based CBT interventions (e.g., Fraley & Shaver, 2000).",
+    plan: {
+      week1: "Trigger Mapping. Track moments of 'Abandonment Panic'. What triggered it? (e.g., a delayed text, a neutral tone). Rate the intensity.",
+      week2: "Check the Facts. When panic sets in, ask: 'Is this a fact or a fear?' 'Is there an alternative explanation for their behavior (e.g., they are busy)?'",
+      week3: "Response Prevention. When the urge to seek reassurance hits (e.g., double texting), wait 30 minutes. Self-soothe during the gap (deep breathing, walking).",
+      week4: "Self-Soothing Kit. Create a physical or digital list of activities that calm you down *without* involving another person. Practice one daily regardless of anxiety levels."
+    }
+  },
+  {
+    id: 6,
+    category: "Relationship and Attachment",
+    name: "Avoidant Attachment & Emotional Isolation",
+    causes: "Emotional neglect; invalidation; punished for emotional expression.",
+    symptoms: "Emotional numbing, difficulty with vulnerability, prioritizing independence over intimacy.",
+    manifestations: "Loneliness, surface-level relationships, physical tension from suppression.",
+    evidence: "Based on vulnerability exercises from Brown's research (2012) and CBT for avoidance.",
+    plan: {
+      week1: "Emotion Naming. Set a timer 3 times a day. Ask: 'What am I feeling physically?' and 'What emotion matches this?' (Use an Emotion Wheel).",
+      week2: "Challenge 'Independence'. Examine the belief 'If I need others, I am weak.' Look for evidence where mutual support actually increased strength or efficiency.",
+      week3: "Micro-Vulnerability. Share one small, genuine feeling or opinion with a safe person that you would usually keep to yourself. (e.g., 'I had a hard day' instead of 'I'm fine').",
+      week4: "Connection Scheduling. Schedule 15 minutes of 'undistracted connection' time with a partner or friend weekly. No phones, just presence."
+    }
+  },
+  {
+    id: 7,
+    category: "Relationship and Attachment",
+    name: "Good-Child Syndrome & Boundary Weakness",
+    causes: "Affection/safety conditional on compliance; needing to 'parent' a caregiver.",
+    symptoms: "Inability to say 'no', resentment, over-giving, emotional exhaustion, masked self.",
+    manifestations: "Burnout, internalized rage, chronic fatigue, tension headaches.",
+    evidence: "Draws from assertiveness training in CBT (e.g., Alberti & Emmons, 1970).",
+    plan: {
+      week1: "The 'Yes' Audit. Track every time you said 'Yes' when you wanted to say 'No'. Note the physical sensation (e.g., stomach knot).",
+      week2: "Decatastrophizing 'No'. Write down: 'If I say no, I fear X will happen.' Then write: 'If X happens, I will cope by Y.' Challenge the idea that saying no makes you 'bad'.",
+      week3: "The 'Buy Time' Technique. For one week, do not agree to anything immediately. Use the script: 'Let me check my schedule and get back to you.' Practice sitting with the guilt.",
+      week4: "Boundary Scripting. Write down 3 standard scripts for refusal. Practice saying them out loud. Reward yourself for every boundary set."
+    }
+  },
+  {
+    id: 8,
+    category: "Relationship and Attachment",
+    name: "Digital Escape & Connection Substitution",
+    causes: "Screens as early soothing; social anxiety leading to digital withdrawal.",
+    symptoms: "Productivity sabotage, social media addiction, replacing reciprocal relationships.",
+    manifestations: "Depression, detachment, sleep disruption, eye strain, low vitality.",
+    evidence: "Based on digital detox protocols from CBT for internet addiction (Young, 2011).",
+    plan: {
+      week1: "Screen Time Audit. Use an app tracker. Identify the 'Numbing Hour'—the specific time of day you scroll to avoid feeling.",
+      week2: "Identify the Void. When reaching for the phone, pause 5 seconds. Ask: 'What am I avoiding?' (Boredom, loneliness, anxiety). Write it down instead of scrolling.",
+      week3: "Gray Scale Experiment. Turn your phone to Grayscale mode for the week. Leave the phone in another room during meals and sleep. Replace the scrolling time with a physical book or walk.",
+      week4: "Real World Anchoring. Establish 'Tech-Free Zones' (e.g., bedroom, dinner table). Schedule one face-to-face (or voice) interaction per week to replace a digital one."
+    }
+  },
+  {
+    id: 9,
+    category: "Resource and Security",
+    name: "Financial Scarcity & Anxiety",
+    causes: "Severe financial struggle; parents having chronic money stress.",
+    symptoms: "Chronic money anxiety, inability to plan, hoarding or impulsive spending.",
+    manifestations: "Panic attacks regarding money, sleep issues, low-grade stress.",
+    evidence: "Adapted from CBT for financial anxiety (Klontz & Klontz, 2009).",
+    plan: {
+      week1: "Expense Awareness. Track spending without judgment. Notice the emotion attached to buying (guilt, relief, panic).",
+      week2: "Cognitive Restructuring. Challenge 'Catastrophic Poverty' thoughts. Replace 'I will end up homeless' with 'I have skills and resources to manage challenges.'",
+      week3: "Financial Exposure. Open your bank statements/bills that you avoid. Sit with the numbers for 10 minutes until the panic creates a bell curve (rises then falls).",
+      week4: "The 'Abundance' Plan. Automate a very small savings amount (even $5) to prove you have margin. Create a 1-month realistic budget."
+    }
+  },
+  {
+    id: 10,
+    category: "Resource and Security",
+    name: "Environmental Chaos Tolerance",
+    causes: "Growing up in disorganized, chaotic, or unsafe homes.",
+    symptoms: "High tolerance for clutter, inability to focus, neglecting personal space.",
+    manifestations: "Diffuse anxiety, reduced focus, chronic low-grade stress.",
+    evidence: "Based on behavioral activation for environmental disorganization in CBT (e.g., for ADHD, Lejuez et al., 2011).",
+    plan: {
+      week1: "Chaos Scan. Photograph your primary living space. Look at the photo objectively. Identify 3 areas that drain your energy visually.",
+      week2: "Visualization. Visualize a calm, ordered space. Connect the feeling of 'safety' with 'order' rather than 'chaos'. Challenge the belief 'Clutter doesn't affect me' by noting how it impacts focus/mood.",
+      week3: "The 15-Minute Sweep. Do not try to clean the whole house. Set a timer for 15 minutes daily to clear one flat surface. Stop when the timer dings.",
+      week4: "Sanctuary Creation. Designate one corner or room as a 'Chaos-Free Zone'. Maintain this single area strictly as a retreat for your nervous system."
+    }
+  },
+  {
+    id: 11,
+    category: "Resource and Security",
+    name: "Safety & Threat Vigilance",
+    causes: "Exposure to violence, instability, or physical danger.",
+    symptoms: "Hyper-vigilance, difficulty relaxing, anticipating worst-case scenarios.",
+    manifestations: "PTSD, generalized anxiety, hyper-arousal, high heart rate.",
+    evidence: "Grounded in relaxation techniques from CBT for anxiety (Craske & Barlow, 2006).",
+    plan: {
+      week1: "Threat Log. Note how many times you scan for danger (e.g., checking exits, watching people). Rate the *actual* safety of the environment (0-10).",
+      week2: "Probability Estimation. When you fear a threat, rate the probability (0-100%). Compare this to the probability of safety. Challenge 'Possible vs. Probable'.",
+      week3: "Safety Drop. In a known safe environment (home), deliberately lower your shoulders and unclench your jaw. Close your eyes for 1 minute. Teach the body safety.",
+      week4: "Grounding Routine. Practice 5-4-3-2-1 grounding (5 things seen, 4 touched, etc.) whenever vigilance spikes. Create a 'Safety Anchor' object to carry."
+    }
+  },
+  {
+    id: 12,
+    category: "Well-Being and Engagement",
+    name: "Chronic Fatigue & Depletion",
+    causes: "Unmanaged stress; emotional suppression; ignoring physical warning signs.",
+    symptoms: "Persistent low energy, reliance on stimulants, neglecting self-care.",
+    manifestations: "Burnout, chronic illness, pain interference, irritability.",
+    evidence: "Pacing and hygiene from CBT for chronic fatigue (White et al., 2011).",
+    plan: {
+      week1: "Energy Accounting. Treat energy like money. Track deposits (rest, food) vs. withdrawals (work, stress). Identify where you are overdrawn.",
+      week2: "Permission to Rest. Identify the rule 'I must always be productive.' Replace with 'Rest is productive because it repairs me.'",
+      week3: "Pacing Experiment. Break tasks into 20-minute chunks with mandatory 5-minute floor-rests. Stop *before* you are exhausted.",
+      week4: "Sleep Hygiene Reset. Establish a strict wind-down routine. No screens 1 hour before bed. Make the bedroom for sleep only."
+    }
+  },
+  {
+    id: 13,
+    category: "Well-Being and Engagement",
+    name: "Meaning/Purpose Void",
+    causes: "Lack of role models for passion; focus solely on external achievement.",
+    symptoms: "Feeling aimless, low engagement, seeking novelty without satisfaction.",
+    manifestations: "Existential anxiety, depression, restlessness, low physical activity.",
+    evidence: "Values clarification from Acceptance and Commitment Therapy (Hayes et al., 1999).",
+    plan: {
+      week1: "Values Sort. List 5 core values (e.g., creativity, service, freedom). Rate how much your current daily life aligns with them (1-10).",
+      week2: "Challenge 'The Destination'. Restructure the thought 'I will be happy when...' to 'I can find meaning in...'. Focus on process over outcome.",
+      week3: "Novelty Action. Try one activity purely for curiosity, not mastery or profit (e.g., a pottery class, a hike in a new place).",
+      week4: "Service Micro-Dose. Spend 1 hour/week helping someone else or a cause. Observe the impact on your sense of purpose."
+    }
+  },
+  {
+    id: 14,
+    category: "Well-Being and Engagement",
+    name: "Pessimism & Negative Expectancy",
+    causes: "Environment of criticism or failure; emotional dampening.",
+    symptoms: "Expecting negative outcomes, minimizing success, quick discouragement.",
+    manifestations: "Low optimism, persistent unhappiness, increased cortisol.",
+    evidence: "Savoring and gratitude from positive psychology CBT (Seligman, 2002).",
+    plan: {
+      week1: "Negativity Bias Log. Track how many times you predict a negative outcome. Mark how many actually came true.",
+      week2: "Alternative Outcomes. For every negative prediction, force yourself to write one positive and one neutral outcome.",
+      week3: "Savoring Practice. Spend 2 minutes daily solely focusing on a positive sensory experience (coffee, sun). Amplify the good feelings.",
+      week4: "Gratitude Discipline. Write 3 specific things that went well today. Explain *why* they went well due to your efforts (internal attribution)."
+    }
+  },
+  {
+    id: 15,
+    category: "Well-Being and Engagement",
+    name: "Grief Suppression & Emotional Numbing",
+    causes: "Unresolved childhood losses without space to grieve.",
+    symptoms: "Difficulty identifying emotions, rigidity, holding grudges, reliance on logic.",
+    manifestations: "Emotional flatness, physical blocks, psychosomatic pain.",
+    evidence: "Grief processing from CBT for complicated grief (Shear et al., 2005).",
+    plan: {
+      week1: "Body Scan. Since emotions are numb, track physical tension. Where does the grief live? (Chest, throat, stomach). Use an emotion wheel to label feelings before scanning.",
+      week2: "Grief Letters. Write a letter to what/who was lost. Do not send it. Allow yourself to write the angry or sad parts without editing.",
+      week3: "Scheduled Grieving. Set aside 20 minutes to listen to music or view photos that evoke the loss. Allow the wave to hit, then self-soothe.",
+      week4: "Integration. Create a ritual to honor the loss (planting a tree, lighting a candle). Move from 'getting over it' to 'carrying it with you'."
+    }
+  },
+  {
+    id: 16,
+    category: "Cross-Cutting Schemas",
+    name: "Disorganized Time/Executive Dysfunction",
+    causes: "Undiagnosed ADHD or poor modeling of structure; anxiety cognitive overload.",
+    symptoms: "Chronic procrastination, missing deadlines, overwhelm.",
+    manifestations: "Guilt, stress, feeling incompetent, high stress hormones.",
+    evidence: "Pomodoro and chunking from CBT for ADHD (Safren et al., 2005).",
+    plan: {
+      week1: "Time Blindness Track. Estimate how long a task will take, then time it. Note the discrepancy.",
+      week2: "Chunking. Break 'Big Scary Tasks' into 'Nano-Steps' (e.g., 'Open laptop' is step 1). Cognitive reframe: 'I only have to do the first step.'",
+      week3: "The Pomodoro Method. Work 25 mins, rest 5. Use an external timer (not phone). Externalize executive function.",
+      week4: "Visual Systems. Set up a visual kanban board or whiteboard (To Do, Doing, Done). Move physical sticky notes to create dopamine hits."
+    }
+  },
+  {
+    id: 17,
+    category: "Cross-Cutting Schemas",
+    name: "Avoidance of Responsibility/Accountability",
+    causes: "Lack of clear consequences in childhood; high shame leading to deflection.",
+    symptoms: "Blaming external factors, inability to sustain effort, avoiding decisions.",
+    manifestations: "External locus of control, emotional immaturity, low motivation.",
+    evidence: "Radical responsibility from CBT and DBT skills (Linehan, 1993).",
+    plan: {
+      week1: "Blame Audit. Notice when you say 'It's not my fault' or 'They made me'. Catch the deflection reflex.",
+      week2: "Radical Responsibility. For one small error, practice saying 'I made a mistake, here is how I will fix it.' Observe that the world doesn't end.",
+      week3: "The 'Hard Thing' First. Do the most dreaded task first thing in the morning (Eat the Frog). Build tolerance for discomfort.",
+      week4: "Ownership Language. Change 'I have to' to 'I choose to'. Reclaim agency over your obligations."
+    }
+  },
+  {
+    id: 18,
+    category: "Cross-Cutting Schemas",
+    name: "Hyper-Independence/Lack of Trust",
+    causes: "Betrayal or repeated disappointment by caregivers.",
+    symptoms: "Inability to delegate, refusing help, reluctance to trust.",
+    manifestations: "Isolation, resentment, chronic self-reliance stress.",
+    evidence: "Trust-building from interpersonal CBT (Safran & Segal, 1990).",
+    plan: {
+      week1: "Delegation Log. List tasks you are doing that others could do. Note the thought blocking you (e.g., 'They'll mess it up').",
+      week2: "Trust Testing. Challenge the thought 'No one can do it like me.' Is this fact, or a control mechanism?",
+      week3: "The 'Ask' Experiment. Ask for help with one small, low-risk task (e.g., asking for directions or a small favor).",
+      week4: "Interdependence. Identify one area where collaboration yields better results than solo work. Initiate a collaborative effort."
+    }
+  },
+  {
+    id: 19,
+    category: "Cross-Cutting Schemas",
+    name: "Community Disconnection & Apathy",
+    causes: "Lack of social integration; high focus on self-interest due to scarcity.",
+    symptoms: "Low interest in others, reluctance to contribute, feeling detached.",
+    manifestations: "Isolation, cynicism, reduced sense of meaning.",
+    evidence: "Empathy and contribution from social CBT (Hofmann, 2012).",
+    plan: {
+      week1: "Connection Inventory. How many meaningful interactions do you have weekly? Rate your feeling of belonging (1-10).",
+      week2: "Empathy Exercise. When seeing a stranger, practice imagining their life, struggles, and hopes. Humanize the 'other'.",
+      week3: "Contribution. Do one small act for the community (pick up trash, donate, hold a door). Focus on the feeling of being part of the whole.",
+      week4: "Group Participation. Join one local group or online community centered on a shared interest. Attend once."
+    }
+  },
+  {
+    id: 20,
+    category: "Cross-Cutting Schemas",
+    name: "Trauma Core Schema",
+    causes: "Direct exposure to high-impact Adverse Childhood Experiences (ACEs).",
+    symptoms: "Flashbacks, triggers, chronic self-sabotage, severe distrust.",
+    manifestations: "CPTSD, severe anxiety, autoimmune issues, high pain sensitivity.",
+    evidence: "From Trauma-Focused CBT (Cohen et al., 2006). Consult a therapist if symptoms intensify; this is adjunctive, not a replacement for professional care.",
+    plan: {
+      week1: "Trigger Awareness (Safety First). Identify specific sensory triggers (smells, sounds). Focus on grounding immediately when triggered.",
+      week2: "Cognitive Processing. Work on 'Stuck Points' (e.g., 'The world is unsafe'). Differentiate 'Then' (trauma time) vs. 'Now' (safe time).",
+      week3: "Titrated Exposure. Slowly approach safe situations you avoid due to trauma triggers. Do this only when regulated.",
+      week4: "Maintenance & Care. Build a robust support network (therapy, groups). Prioritize nervous system regulation as a lifestyle, not a fix."
+    }
+  }
+];
+
+
+export default function CbtSchemaWorkbook() {
+  const [selectedSchema, setSelectedSchema] = useState(null);
+  const [completedWeeks, setCompletedWeeks] = useState({});
+
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+
+  const handleDownloadPDF = (schema) => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text(schema.name, 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Category: ${schema.category}`, 20, 30);
+    doc.text(`Root Causes: ${schema.causes}`, 20, 40);
+    doc.text(`Symptoms: ${schema.symptoms}`, 20, 50);
+    doc.text(`Manifestations: ${schema.manifestations}`, 20, 60);
+    doc.text(`Evidence: ${schema.evidence}`, 20, 70);
+    doc.text('4-Week Plan:', 20, 80);
+    doc.text(`Week 1: ${schema.plan.week1}`, 20, 90, { maxWidth: 160 });
+    doc.text(`Week 2: ${schema.plan.week2}`, 20, 110, { maxWidth: 160 });
+    doc.text(`Week 3: ${schema.plan.week3}`, 20, 130, { maxWidth: 160 });
+    doc.text(`Week 4: ${schema.plan.week4}`, 20, 150, { maxWidth: 160 });
+    doc.save(`${schema.name}.pdf`);
+  };
+
+
+  const toggleWeekComplete = (schemaId, week) => {
+    const key = `${schemaId}-${week}`;
+    setCompletedWeeks((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+
+  const SchemaCard = ({ schema }) => (
+    <div
+      onClick={() => {
+        setSelectedSchema(schema);
+        window.scrollTo(0, 0);
+      }}
+      className="bg-white p-4 rounded-lg shadow-sm border border-slate-200 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group"
+    >
+      <div className="flex justify-between items-start">
+        <div>
+          <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">{schema.category}</span>
+          <h3 className="font-bold text-slate-800 mt-1 group-hover:text-blue-700">{schema.name}</h3>
+        </div>
+        <ChevronRight className="text-slate-300 group-hover:text-blue-500" size={20} aria-label="View details" />
+      </div>
+    </div>
+  );
+
+
+  const DetailView = ({ schema }) => {
+    if (!schema) return null;
+    return (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+        <button
+          onClick={() => setSelectedSchema(null)}
+          className="flex items-center text-slate-500 hover:text-blue-600 mb-6 font-medium transition-colors print:hidden"
+        >
+          <ArrowLeft size={18} className="mr-2" aria-label="Back" /> Back to Schema List
+        </button>
+        <div className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden print:shadow-none print:border-none">
+          {/* Header */}
+          <div className="bg-blue-900 text-white p-8 print:p-0 print:bg-white print:text-black print:mb-4">
+            <span className="inline-block px-3 py-1 rounded-full bg-blue-500/20 text-blue-100 text-xs font-bold mb-3 border border-blue-500/30 print:text-slate-600 print:bg-transparent print:border-none print:p-0">
+              {schema.category}
+            </span>
+            <h1 className="text-3xl font-bold mb-2">{schema.name}</h1>
+            <p className="text-blue-200 print:text-slate-600">Scientific CBT & Schema Therapy Action Plan</p>
+          </div>
+          {/* Analysis Section */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 bg-slate-50 border-b border-slate-200 print:bg-white print:p-0 print:gap-4">
+            <div className="space-y-3">
+              <div className="flex items-center text-red-600 font-bold">
+                <Brain size={18} className="mr-2" aria-label="Root Causes" /> Root Causes
+              </div>
+              <p className="text-sm text-slate-700 leading-relaxed">{schema.causes}</p>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center text-orange-600 font-bold">
+                <AlertCircle size={18} className="mr-2" aria-label="Symptoms" /> Symptoms
+              </div>
+              <p className="text-sm text-slate-700 leading-relaxed">{schema.symptoms}</p>
+            </div>
+            <div className="space-y-3">
+              <div className="flex items-center text-purple-600 font-bold">
+                <Activity size={18} className="mr-2" aria-label="Manifestations" /> Manifestations
+              </div>
+              <p className="text-sm text-slate-700 leading-relaxed">{schema.manifestations}</p>
+            </div>
+          </div>
+          {/* Evidence */}
+          <div className="p-8 bg-slate-50 print:p-0 print:mt-2">
+            <p className="text-sm text-slate-600 italic">{schema.evidence}</p>
+          </div>
+          {/* 4-Week Plan */}
+          <div className="p-8 print:p-0 print:mt-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-slate-800">4-Week Action Protocol</h2>
+              <div className="space-x-2 print:hidden">
+                <button onClick={handlePrint} className="flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600">
+                  <Printer size={16} /> Print Plan
+                </button>
+                <button onClick={() => handleDownloadPDF(schema)} className="flex items-center gap-2 text-sm text-slate-500 hover:text-blue-600">
+                  <Printer size={16} /> Download PDF
+                </button>
+              </div>
+            </div>
+            <div className="grid gap-6">
+              {['week1', 'week2', 'week3', 'week4'].map((week, index) => {
+                const titles = ['Week 1: Awareness & Tracking', 'Week 2: Cognitive Restructuring', 'Week 3: Behavioral Experiments', 'Week 4: Maintenance & Habits'];
+                const objectives = ['Objective: Identify triggers without judgment.', 'Objective: Challenge distortions with logic.', 'Objective: Break loops through new actions.', 'Objective: Prevent relapse and solidify growth.'];
+                const icons = [BookOpen, Brain, Leaf, Shield];
+                const Icon = icons[index];
+                const key = `${schema.id}-${week}`;
+                return (
+                  <div key={week} className="relative pl-8 border-l-4 border-blue-500">
+                    <div className="absolute -left-3 top-0 bg-blue-500 text-white p-1.5 rounded-full">
+                      <Icon size={16} aria-label={`${titles[index]} Icon`} />
+                    </div>
+                    <h3 className="text-lg font-bold text-blue-900 mb-1">{titles[index]}</h3>
+                    <p className="text-slate-600 italic text-sm mb-3">{objectives[index]}</p>
+                    <div className="bg-blue-50 p-4 rounded-lg text-slate-800 text-sm md:text-base">
+                      {schema.plan[week]}
+                    </div>
+                    <label className="flex items-center mt-2 print:hidden">
+                      <input
+                        type="checkbox"
+                        checked={completedWeeks[key] || false}
+                        onChange={() => toggleWeekComplete(schema.id, week)}
+                        className="mr-2"
+                      />
+                      Mark as Complete
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+
+  return (
+    <div className="min-h-screen bg-slate-100 font-sans text-slate-900">
+      <style>{`
+        @media print {
+          body { background: white; }
+          .print\\:hidden { display: none !important; }
+          .print\\:p-0 { padding: 0 !important; }
+          .print\\:bg-white { background: white !important; }
+          .print\\:text-black { color: black !important; }
+          .print\\:border-none { border: none !important; }
+          .print\\:shadow-none { box-shadow: none !important; }
+        }
+      `}</style>
+      {/* Navbar */}
+      <nav className="bg-white border-b border-slate-200 sticky top-0 z-10 print:hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex items-center gap-2">
+              <div className="bg-blue-600 p-2 rounded-lg text-white">
+                <Brain size={24} aria-label="Logo" />
+              </div>
+              <span className="font-bold text-xl text-slate-800">CBT Schema Workbook</span>
+            </div>
+            <div className="text-sm text-slate-500">Scientific Self-Help Protocol</div>
+          </div>
+        </div>
+      </nav>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {!selectedSchema ? (
+          <div className="space-y-8 animate-in fade-in duration-500">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <h1 className="text-3xl font-bold text-slate-900 mb-4">Identify Your Schema</h1>
+              <p className="text-lg text-slate-600">
+                Select a schema below to generate your personalized 4-week CBT action plan.
+                Each plan includes targeted tracking, cognitive restructuring, and behavioral experiments.
+              </p>
+            </div>
+            <div className="grid gap-8">
+              {['Self-Worth and Achievement', 'Relationship and Attachment', 'Resource and Security', 'Well-Being and Engagement', 'Cross-Cutting Schemas'].map((cat) => (
+                <div key={cat}>
+                  <h2 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 ml-1">{cat}</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                    {schemas.filter(s => s.category === cat).map(schema => (
+                      <SchemaCard key={schema.id} schema={schema} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <DetailView schema={selectedSchema} />
+        )}
+      </main>
+      <footer className="bg-white border-t border-slate-200 py-8 mt-12 print:hidden">
+        <div className="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
+          <p>Based on Cognitive Behavioral Therapy (CBT) & Schema Therapy principles.</p>
+          <p className="mt-2">This tool is for educational purposes and self-help, not a replacement for clinical diagnosis or therapy. Consult professionals as needed.</p>
+        </div>
+      </footer>
+    </div>
+  );
+}

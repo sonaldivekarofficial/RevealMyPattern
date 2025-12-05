@@ -1,0 +1,101 @@
+ID,Element,Sub Element,Question Text,Scale Type,Scale Min (1),Scale Max (5)
+1,Vitality,Physical Health,I would rate my health overall as excellent.,Agreement,Strongly Disagree,Strongly Agree
+2,Vitality,Physical Pain,I am rarely interfered with by physical discomfort or pain in my normal activities.,Agreement,Strongly Disagree,Strongly Agree
+3,Vitality,Vital Energy,I have a lot of physical and mental energy.,Agreement,Strongly Disagree,Strongly Agree
+4,Vitality,Mental Health,"I feel mentally sharp, focused, and free from exhaustion.",Agreement,Strongly Disagree,Strongly Agree
+5,Vitality,Sleep Quality,I would rate my sleep quality as very good.,Agreement,Strongly Disagree,Strongly Agree
+6,Vitality,Sense of Control,I feel able to control important things in my life.,Agreement,Strongly Disagree,Strongly Agree
+7,Vitality,Adaptation,I am able to adapt easily and positively when changes occur.,Agreement,Strongly Disagree,Strongly Agree
+8,Vitality,Sense of Joy,I feel cheerful and in good spirits.,Agreement,Strongly Disagree,Strongly Agree
+9,Vitality,Sense of Peace,I feel calm and relaxed.,Agreement,Strongly Disagree,Strongly Agree
+10,Vitality,Healthy work-life balance,"I have enough energy to fully engage in work, family, friends, and hobbies.",Agreement,Strongly Disagree,Strongly Agree
+11,Connection,Sense Of Companionship,I feel that I have adequate companionship.,Agreement,Strongly Disagree,Strongly Agree
+12,Connection,Sense of Belonging,"I feel included and seldom left out among family, friends, or at work.",Agreement,Strongly Disagree,Strongly Agree
+13,Connection,Sense Of Security,I can count on my friends and family for reliable support when things go wrong.,Agreement,Strongly Disagree,Strongly Agree
+14,Connection,Sense of Community,I have positive and healthy relationships with my neighbours and colleagues.,Agreement,Strongly Disagree,Strongly Agree
+15,Connection,Relationship Balance,My relationships feel reciprocal; I give and receive support equally.,Agreement,Strongly Disagree,Strongly Agree
+16,Connection,Emotional Safety,I prefer to share my feelings and emotions deeply with a partner.,Agreement,Strongly Disagree,Strongly Agree
+17,Connection,Emotional Trust,I feel secure and confident in my partner's love (if applicable).,Agreement,Strongly Disagree,Strongly Agree
+18,Connection,Digital Life,I am consistently in control of my daily screen time and digital usage.,Agreement,Strongly Disagree,Strongly Agree
+19,Connection,Digital Habits,My digital habits effectively support and enhance my productivity.,Agreement,Strongly Disagree,Strongly Agree
+20,Connection,Digital Wellbeing,I feel that social media generally enhances my mental health and well-being.,Agreement,Strongly Disagree,Strongly Agree
+21,Environment,Environmental Safety,I feel very safe and secure in my neighborhood.,Agreement,Strongly Disagree,Strongly Agree
+22,Environment,Community Orderliness,"I would describe my neighborhood as clean, quiet, and well-maintained.",Agreement,Strongly Disagree,Strongly Agree
+23,Environment,Environmental Quality,I have sufficient access to park/garden/green space near my home.,Agreement,Strongly Disagree,Strongly Agree
+24,Environment,Ease of Transportation,My transit/commute from home to work/city is comfortable and efficient.,Agreement,Strongly Disagree,Strongly Agree
+25,Environment,Ease of Commute,I feel completely safe and comfortable in my home environment.,Agreement,Strongly Disagree,Strongly Agree
+26,Environment,Home Orderliness,"My home is clean, organized, and well-maintained.",Agreement,Strongly Disagree,Strongly Agree
+27,Environment,Access to Privacy,I have enough private and personal space in my home when I need it.,Agreement,Strongly Disagree,Strongly Agree
+28,Environment,Quality of Living Space,"I feel content with my home, it is my sanctuary.",Agreement,Strongly Disagree,Strongly Agree
+29,Environment,Quality of Work Space,"My primary workspace is comfortable, functional, and conducive to focus.",Agreement,Strongly Disagree,Strongly Agree
+30,Environment,Sense of Comfort,"My home, work, and neighborhood spaces actively support my well-being.",Agreement,Strongly Disagree,Strongly Agree
+31,Growth,Career Fullfilment,I have found a fulfilling career path.,Agreement,Strongly Disagree,Strongly Agree
+32,Growth,Career Growth,My current work/job is well-aligned with my long-term career goals.,Agreement,Strongly Disagree,Strongly Agree
+33,Growth,Ambition,I feel confident pursuing new roles or jobs when it means higher pay and designation.,Agreement,Strongly Disagree,Strongly Agree
+34,Growth,Growth Mindset,I actively seek opportunities to learn new skills and information.,Agreement,Strongly Disagree,Strongly Agree
+35,Growth,Awareness of Priorities,I consistently prioritize my tasks effectively and stick to deadlines.,Agreement,Strongly Disagree,Strongly Agree
+36,Growth,Critical Thinking,I usually manage to solve problems effectively and get things done.,Agreement,Strongly Disagree,Strongly Agree
+37,Growth,Self Efficacy,I am confident I could deal efficiently with unexpected events like loss of income or job.,Agreement,Strongly Disagree,Strongly Agree
+38,Growth,Resilience,Setbacks and failures motivate me rather than discourage me.,Agreement,Strongly Disagree,Strongly Agree
+39,Growth,Self Compassion,I speak to myself kindly and patiently when I make a mistake.,Agreement,Strongly Disagree,Strongly Agree
+40,Growth,Foresight,I have a very strong ability to prepare for and plan my future.,Agreement,Strongly Disagree,Strongly Agree
+41,Stability,Financial Stability,I never have trouble paying my bills on time.,Agreement,Strongly Disagree,Strongly Agree
+42,Stability,Financial Wellbeing,I rarely feel anxious about my current financial situation.,Agreement,Strongly Disagree,Strongly Agree
+43,Stability,Financial Contentment,I feel secure and satisfied with my current income level.,Agreement,Strongly Disagree,Strongly Agree
+44,Stability,Financial Wellbeing,I feel calm and unstressed about any debts I may have.,Agreement,Strongly Disagree,Strongly Agree
+45,Stability,Financial Discipline,I am confident in my own and my family’s responsible spending habits.,Agreement,Strongly Disagree,Strongly Agree
+46,Stability,Financial Preparedness,I could comfortably handle a major unexpected expense like a hospital bill.,Agreement,Strongly Disagree,Strongly Agree
+47,Stability,Financial Foresight,I have clearly defined and specific financial goals.,Agreement,Strongly Disagree,Strongly Agree
+48,Stability,Financial Proactivity,I have a clear and written financial plan for the next 1-5 years.,Agreement,Strongly Disagree,Strongly Agree
+49,Stability,Financial Proactivity,I regularly and consistently set aside money for long-term savings.,Agreement,Strongly Disagree,Strongly Agree
+50,Stability,Fnancial Proactivity,I am actively and effectively securing my financial future.,Agreement,Strongly Disagree,Strongly Agree
+51,Meaning,Life Satisfaction,I feel highly engaged and interested in my daily activities.,Agreement,Strongly Disagree,Strongly Agree
+52,Meaning,Agency,"I have a clear sense of purpose, goals, and aims in life.",Agreement,Strongly Disagree,Strongly Agree
+53,Meaning,Personal Growth Mindset,I actively try to lead a purposeful and meaningful life.,Agreement,Strongly Disagree,Strongly Agree
+54,Meaning,Moral compass,I am mindful of my actions and their impact on others and the world.,Agreement,Strongly Disagree,Strongly Agree
+55,Meaning,Optimism,I am strongly optimistic and positive about my future.,Agreement,Strongly Disagree,Strongly Agree
+56,Meaning,Relationship Satisfaction,My relationships with others feel genuine and authentic.,Agreement,Strongly Disagree,Strongly Agree
+57,Meaning,Empathy,I feel genuinely interested in the lives of people around me.,Agreement,Strongly Disagree,Strongly Agree
+58,Meaning,Emotional Maturity,"I find it easy to forgive others, not holding grudges and moving on quickly.",Agreement,Strongly Disagree,Strongly Agree
+59,Meaning,Altruism,"I contribute significantly to society through service, donations, or financial help.",Agreement,Strongly Disagree,Strongly Agree
+60,Meaning,Self Acceptance,"I believe my failings are a normal part of the human experience, not unique defects.",Agreement,Strongly Disagree,Strongly Agree
+61,ACEs,Emotional Abuse,"I was sworn at, insulted, or humiliated by a parent or adult.",Frequency,Never,Very Often
+62,ACEs,Emotional Abuse,I felt blamed or shamed for normal childhood mistakes by my parents/caregivers.,Frequency,Never,Very Often
+63,ACEs,Substance Exposure,I lived with a substance abuser or alcoholic.,Frequency,Never,Very Often
+64,ACEs,Family Dysfunction,"I had a household member who was depressed, mentally ill, or attempted self harm.",Frequency,Never,Very Often
+65,ACEs,Family Dysfunction,My parents were separated or divorced.,Frequency,Never,Very Often
+66,ACEs,Witness to abuse,"I witnessed my mother/father being physically abused (pushed, grabbed, or slapped) by another adult.",Frequency,Never,Very Often
+67,ACEs,Sexual Abuse,"An adult sexually touched or fondled me, or made me touch them.",Frequency,Never,Very Often
+68,ACEs,Emotional Neglect,I felt emotionally neglected by my family.,Frequency,Never,Very Often
+69,ACEs,Physical Abuse,I was physically hit so hard it left marks or bruises.,Frequency,Never,Very Often
+70,ACEs,Family Financial Struggle,"My household struggled financially, and we had difficulty making ends meet.",Frequency,Never,Very Often
+71,Character Flaw,Anger,I frequently find myself expressing anger or frustration toward others when my plans are unexpectedly disrupted.,Agreement,Strongly Disagree,Strongly Agree
+72,Character Flaw,Lust,I find my focus and concentration are interrupted by intense physical desires or romantic fantasies.,Agreement,Strongly Disagree,Strongly Agree
+73,Character Flaw,Arrogance,I frequently notice that my own solutions are usually superior to the ideas proposed by others.,Agreement,Strongly Disagree,Strongly Agree
+74,Character Flaw,Irresponsibility,"I have a habit of letting tasks or deadlines slip, which sometimes creates problems for the people I work with.",Agreement,Strongly Disagree,Strongly Agree
+75,Character Flaw,Dishonesty,I believe it is occasionally necessary to misrepresent the facts to achieve a required and positive outcome.,Agreement,Strongly Disagree,Strongly Agree
+76,Character Flaw,Laziness,I tend to conserve my energy and find it hard to put in effort that goes beyond the basic requirement of a task.,Agreement,Strongly Disagree,Strongly Agree
+77,Character Flaw,Egocentricity,"I am motivated primarily by maximizing my material and financial gain, even in collaborative settings.",Agreement,Strongly Disagree,Strongly Agree
+78,Character Flaw,Defensiveness,I tend to feel personally challenged or attacked if my ideas or actions are contested or criticized.,Agreement,Strongly Disagree,Strongly Agree
+79,Character Flaw,Pessimism,I believe that people or organizations in positions of power are corrupt or primarily self-serving.,Agreement,Strongly Disagree,Strongly Agree
+80,Character Flaw,Impulsivity,I often make decisions or purchases based on an immediate feeling rather than careful planning.,Agreement,Strongly Disagree,Strongly Agree
+81,Character Strengths,Kindness,"I actively look for opportunities to help others, even when there is no reward or recognition for me.",Agreement,Strongly Disagree,Strongly Agree
+82,Character Strengths,Fairness,I strive to make decisions based on objective principles rather than my personal feelings or biases.,Agreement,Strongly Disagree,Strongly Agree
+83,Character Strengths,Honesty,"I am committed to speaking the truth and presenting my authentic self, even when it is uncomfortable.",Agreement,Strongly Disagree,Strongly Agree
+84,Character Strengths,Gratitude,I frequently pause during my day to appreciate and give thanks for the good things in my life.,Agreement,Strongly Disagree,Strongly Agree
+85,Character Strengths,Critical Thinking,I carefully examine all evidence and sides of an argument before forming an opinion.,Agreement,Strongly Disagree,Strongly Agree
+86,Character Strengths,Love,"I prioritize nurturing close, reciprocal relationships with my friends and family above other pursuits.",Agreement,Strongly Disagree,Strongly Agree
+87,Character Strengths,Curiosity,I feel a strong desire to learn new things and find myself fascinated by how the world works.,Agreement,Strongly Disagree,Strongly Agree
+88,Character Strengths,Hope,I maintain a positive outlook and believe that my efforts will lead to a better future.,Agreement,Strongly Disagree,Strongly Agree
+89,Character Strengths,Bravery,"I am willing to stand up for what is right, even when I am afraid or facing opposition.",Agreement,Strongly Disagree,Strongly Agree
+90,Character Strengths,Humour,I enjoy making others laugh and can easily find the lighter side of difficult situations.,Agreement,Strongly Disagree,Strongly Agree
+91,Behavioral Tells,High Conscientiousness,I am consistently early or exactly on time for every appointment and deadline.,Agreement,Strongly Disagree,Strongly Agree
+92,Behavioral Tells,Low Conscientiousness,I often let my workspace or living area become cluttered and disorganized.,Agreement,Strongly Disagree,Strongly Agree
+93,Behavioral Tells,High Extraversion,I naturally speak loudly and use expressive gestures when I am talking to others.,Agreement,Strongly Disagree,Strongly Agree
+94,Behavioral Tells,LowExtraversion,I frequently turn down social invitations because I need to be alone to recharge my energy.,Agreement,Strongly Disagree,Strongly Agree
+95,Behavioral Tells,High Agreeableness,I make it a daily habit to verbally praise and validate the feelings of the people around me.,Agreement,Strongly Disagree,Strongly Agree
+96,Behavioral Tells,Low Agreeableness,I find myself debating minor details or correcting others even when I know it might be annoying.,Agreement,Strongly Disagree,Strongly Agree
+97,Behavioral Tells,High Neuroticism,"I vocalize my stress, anxieties, or worst-case scenarios to others on a regular basis.",Agreement,Strongly Disagree,Strongly Agree
+98,Behavioral Tells,High Openness,"I constantly seek out new hobbies, intellectual pursuits, or creative activities to try.",Agreement,Strongly Disagree,Strongly Agree
+99,Behavioral Tells,Collectiveness,"I instinctively use the words ""we"" and ""us"" rather than ""I"" when discussing achievements or plans.",Agreement,Strongly Disagree,Strongly Agree
+100,Behavioral Tells,High Impulsivity,I tend to drive fast or take physical risks for the thrill of immediate excitement.,Agreement,Strongly Disagree,Strongly Agree
