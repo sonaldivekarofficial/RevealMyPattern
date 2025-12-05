@@ -1,3 +1,4 @@
+```python
 import streamlit as st
 import pandas as pd
 from io import BytesIO
@@ -451,3 +452,4 @@ else:
         st.session_state.page = 0
         st.session_state.answers = {}
         st.rerun()
+```
