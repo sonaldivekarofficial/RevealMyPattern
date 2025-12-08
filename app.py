@@ -289,7 +289,7 @@ st.markdown("""
 st.divider()
 # Disclaimer
 st.markdown("""
-<div style="padding: 15px; background-color: #333; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
+<div style="padding: 15px; background-color: #ffffff; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 20px;">
     <strong>Disclaimer:</strong> This assessment is for informational and educational purposes only. It is not a substitute for professional mental health diagnosis or treatment. The results are based on schema therapy principles and should be discussed with a qualified mental health professional. **All questions are mandatory.**
 </div>
 """, unsafe_allow_html=True)
