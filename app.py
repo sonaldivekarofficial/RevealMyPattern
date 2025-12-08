@@ -37,7 +37,7 @@ h1, h2, h3, h4, h5, h6 {
 /* --- RADIO BUTTON GRID LAYOUT FIX --- */
 /* 1. Force Text Color to Black */
 div[role="radiogroup"] > label > div > p {
-    color: #000000 !important;
+    color: #333 !important;
     font-weight: 500;
 }
 /* 2. Container Styling - Create a Grid */
