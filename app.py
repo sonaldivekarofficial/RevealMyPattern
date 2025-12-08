@@ -49,7 +49,7 @@ div[role="radiogroup"] {
 }
 /* 3. Individual Option Styling (Cards) */
 div[role="radiogroup"] > label {
-    background-color: #ffffff;
+    background-color: #ffff00;
     padding: 12px 15px;
     border-radius: 8px;
     border: 1px solid #d0d0d0;
