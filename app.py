@@ -55,7 +55,7 @@ div[role="radiogroup"] > label {
     border: 1px solid #d0d0d0;
     cursor: pointer;
     transition: all 0.2s ease;
-   
+    color:#333;
     /* Grid Logic: Take up approx 48% of space (2 per row) */
     flex: 1 1 45%;
     min-width: 200px; /* If screen is too small, wrap to full width */
