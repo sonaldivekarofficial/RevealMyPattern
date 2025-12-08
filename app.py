@@ -6,11 +6,11 @@ from fpdf import FPDF
 import streamlit.components.v1 as components
 
 # ================================
-#       FINAL CLEAN & PROFESSIONAL UI
+#       FINAL POLISHED UI + AUTO SCROLL TO TOP
 # ================================
 st.set_page_config(layout="centered", page_title="Latent Recursion Test")
 
-CLEAN_CSS = """
+FINAL_CSS = """
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
@@ -67,57 +67,12 @@ CLEAN_CSS = """
         transition: width 0.7s ease;
     }
     
-    /* Beautiful custom radio buttons */
-    .radio-group {
-        display: flex;
-        justify-content: space-between;
-        background: #334155;
-        padding: 1rem;
-        border-radius: 16px;
-        margin: 2rem 0;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-    
-    .radio-group input[type="radio"] {
-        opacity: 0;
-        position: fixed;
-        width: 0;
-    }
-    
-    .radio-group label {
-        flex: 1;
-        min-width: 110px;
-        text-align: center;
-        padding: 1rem 0.5rem;
-        background: #475569;
-        color: #cbd5e1;
-        border-radius: 12px;
-        font-size: 0.95rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .radio-group label:hover {
-        background: #5b7288;
-        transform: translateY(-3px);
-    }
-    
-    .radio-group input[type="radio"]:checked + label {
-        background: #22c55e !important;
-        color: white !important;
-        font-weight: 700;
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(34,197,94,0.4);
-    }
-    
     .question-text {
         font-size: 1.45rem;
         font-weight: 700;
         color: #f1f5f9;
         text-align: center;
-        margin: 3rem 0 1rem;
+        margin: 3rem 0 1.5rem;
         line-height: 1.6;
     }
     
@@ -168,13 +123,17 @@ CLEAN_CSS = """
 </div>
 
 <script>
+    // Update progress bar
     const totalPages = 10;
     const currentPage = """ + str(st.session_state.page + 1 if 'page' in st.session_state and st.session_state.page < 10 else 10) + """;
     document.getElementById("progressFill").style.width = (currentPage / totalPages * 100) + "%";
+    
+    // Auto scroll to top on page change
+    window.parent.document.querySelector('.main-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
 </script>
 """
 
-components.html(CLEAN_CSS, height=0)
+components.html(FINAL_CSS, height=0)
 
 # ================================
 #       YOUR FULL ORIGINAL LOGIC (100% INTACT)
@@ -326,9 +285,9 @@ with st.container():
             text = q['Question Text']
             st.markdown(f"<div class='question-text'><strong>Q{qid}: {text}</strong></div>", unsafe_allow_html=True)
 
-            current_answer = st.session_state.answers.get(qid, 3) - 1  # 0-indexed for radio
+            current_answer = st.session_state.answers.get(qid, 3) - 1
             choice = st.radio(
-                "", 
+                "",
                 options=options,
                 index=current_answer,
                 key=f"q_{qid}",
