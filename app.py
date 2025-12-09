@@ -17,7 +17,9 @@ st.markdown("""
         color: #e2e8f0 !important;
     }
     
-    /* FIX 3: Ensures the viewport scrolls to the very top on page re-run. */
+    /* FIX 2: Ensures the viewport scrolls to the very top on page re-run. */
+    /* By targeting the root Streamlit content container and setting its top padding to zero, 
+       we prevent it from scrolling to the last focused element (the button). */
     .stApp > header:first-child { 
         padding-top: 0 !important; 
     }
@@ -27,8 +29,8 @@ st.markdown("""
 {
         background: rgba(17,24,39,0.97) !important;
         border-radius: 32px !important;
-        /* FIX 1: Reduced vertical padding from 3.5rem to 2rem to reduce overall page height. */
-        padding: 2rem 3rem !important; 
+        /* FIX 1: Reduced vertical padding from 3.5rem to 1.8rem to reduce overall page height. */
+        padding: 1.8rem 3rem !important; 
         max-width: 960px !important;
         margin: 2rem auto !important;
         border: 1px solid #374151 !important;
@@ -73,7 +75,7 @@ st.markdown("""
         text-align: center !important;
         color: #ffffff !important;
         line-height: 1.48 !important;
-        /* FIX 1: Reduced vertical margin from 1.1rem/0.9rem to 0.5rem/0.4rem. */
+        /* FIX 1: Reduced vertical margin to reduce vertical space between questions. */
         margin: 0.5rem 0 0.4rem 0 !important; 
     }
     
@@ -87,10 +89,8 @@ st.markdown("""
     
     .stRadio > div > label {
         background: #1e293b !important;
-        /* FIX 2: Text color on the label itself is not enough, but kept for completeness. */
-        color: white !important; 
-        /* FIX 1: Reduced vertical padding from 0.7rem to 0.5rem to make buttons less "chunky." */
-        padding: 0.5rem 1.5rem !important; 
+        /* FIX 1: Reduced vertical padding from 0.7rem to 0.4rem to make buttons much leaner. */
+        padding: 0.4rem 1.5rem !important; 
         border-radius: 50px !important;
         border: 2px solid #374151 !important;
         font-size: 1.02rem !important;
@@ -100,7 +100,7 @@ st.markdown("""
         transition: all 0.3s ease !important;
     }
     
-    /* FIX 2: Added a strong selector to force the text (which is often wrapped in a div/span inside the label) to white. */
+    /* Force text color inside the label to white (Fix from previous iteration) */
     .stRadio > div > label > div {
         color: white !important; 
     }
@@ -124,8 +124,10 @@ st.markdown("""
         font-weight: 700 !important;
         padding: 0 2.5rem !important;
         margin: 1rem auto !important;
+        /* FIX 2: Removed width: 100% !important; from the generic button. 
+           This allows the buttons to be sized by their content when placed in a column. 
+           We will use the use_container_width=True argument in Python if 100% width is needed. */
         display: block !important;
-        width: 100% !important;
     }
     
     button:disabled {
@@ -133,15 +135,17 @@ st.markdown("""
         color: #9ca3af !important;
     }
     
+    /* FIX 2: Added a CSS class for centering the button column when there is only one. */
+    .stButton > button {
+        margin: 1rem auto !important; /* Forces horizontal center */
+        display: block !important; /* Ensures margin auto works */
+    }
+    
     header, footer, #MainMenu, .stAlert { display: none !important;
     }
 </style>
 <script>
-    /* FIX 3: REMOVED the faulty JavaScript scroll logic. 
-       The window.scrollTo() logic often runs too late after st.rerun() 
-       and conflicts with Streamlit's internal navigation. The CSS fix above 
-       (.stApp > header:first-child) is more reliable for scrolling to the top on re-run. 
-    */
+    /* JavaScript scroll logic remains removed, relying on the robust CSS fix for st.rerun() */
 </script>
 """, unsafe_allow_html=True)
 
@@ -159,7 +163,6 @@ def load_csv_smart(filename):
     raise ValueError(f"Could not load {filename}")
 
 try:
-    # Assuming these files are present in the same directory or Git repo
     questions_df = load_csv_smart("Updated_100Q_Assessment.csv")
     map_df = load_csv_smart("Schema_Weighted_Score_Map.csv")
     schemas_df = load_csv_smart("20_Core_Schemas.csv")
@@ -244,7 +247,6 @@ def generate_pdf(plain_text):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    # The encode/decode is to handle non-ASCII characters that FPDF struggles with
     pdf.multi_cell(0, 10, plain_text.encode('latin-1', 'replace').decode('latin-1'))
     pdf_bytes = BytesIO(pdf.output(dest='S').encode('latin-1'))
     pdf_bytes.seek(0)
@@ -281,8 +283,7 @@ if st.session_state.page < total_pages:
         
         choice = st.radio(
             "", options,
-            # The index check ensures the default selected option is Neutral (index 2) or the previous answer
-            index=st.session_state.answers.get(qid, 3) - 1, 
+            index=st.session_state.answers.get(qid, 3) - 1,
     
             key=f"q_{qid}",
             label_visibility="collapsed",
@@ -290,20 +291,34 @@ if st.session_state.page < total_pages:
         )
         st.session_state.answers[qid] = options.index(choice) + 1
 
-    col1, col2 = st.columns([1, 1])
-    if st.session_state.page > 0:
-        if col1.button("Previous", use_container_width=True):
+    # FIX 2: Check if only the 'Next' button needs to be displayed (i.e., on Page 0)
+    if st.session_state.page == 0:
+        # Use a single column to keep the button centered (default Streamlit behavior when only one element is in a column)
+        col1 = st.columns([1])[0] 
+        prev_col = None
+        next_col = col1
+    else:
+        # Use two columns for Previous/Next buttons on subsequent pages
+        prev_col, next_col = st.columns([1, 1])
+
+    # Previous Button logic (Only visible if not on the first page)
+    if st.session_state.page > 0 and prev_col:
+        if prev_col.button("Previous", use_container_width=True):
             st.session_state.page -= 1
-         
             st.rerun()
 
-    if all(qid in st.session_state.answers for qid in page_questions['ID']):
-        label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next"
-        if col2.button(label, type="primary", use_container_width=True):
-            st.session_state.page += 1
-            st.rerun()
-    else:
-        col2.button("Next", disabled=True, use_container_width=True)
+    # Next/Submit Button logic
+    if next_col:
+        if all(qid in st.session_state.answers for qid in page_questions['ID']):
+            label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next"
+            # Setting use_container_width=False ensures the button is sized by the CSS 
+            # and centered via the single-column setup on the first page.
+            if next_col.button(label, type="primary", use_container_width=False): 
+                st.session_state.page += 1
+                st.rerun()
+        else:
+            # Setting use_container_width=False here matches the active button size/centering
+            next_col.button("Next", disabled=True, use_container_width=False)
 
 else:
     # Results Page
