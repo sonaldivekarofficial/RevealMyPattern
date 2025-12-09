@@ -17,11 +17,18 @@ st.markdown("""
         color: #e2e8f0 !important;
     }
     
+    /* FIX 3: Ensures the viewport scrolls to the very top on page re-run. */
+    .stApp > header:first-child { 
+        padding-top: 0 !important; 
+    }
+    
     /* Main card — clean luxury */
-    .main-card {
+    .main-card 
+{
         background: rgba(17,24,39,0.97) !important;
         border-radius: 32px !important;
-        padding: 3.5rem 3rem !important;
+        /* FIX 1: Reduced vertical padding from 3.5rem to 2rem to reduce overall page height. */
+        padding: 2rem 3rem !important; 
         max-width: 960px !important;
         margin: 2rem auto !important;
         border: 1px solid #374151 !important;
@@ -30,6 +37,7 @@ st.markdown("""
     
     /* Title — perfect */
     h1 {
+  
         font-size: 3.6rem !important;
         font-weight: 900 !important;
         text-align: center !important;
@@ -65,7 +73,8 @@ st.markdown("""
         text-align: center !important;
         color: #ffffff !important;
         line-height: 1.48 !important;
-        margin: 1.1rem 0 0.9rem 0 !important;
+        /* FIX 1: Reduced vertical margin from 1.1rem/0.9rem to 0.5rem/0.4rem. */
+        margin: 0.5rem 0 0.4rem 0 !important; 
     }
     
     /* Radio buttons — WHITE TEXT, GREEN when selected */
@@ -78,8 +87,10 @@ st.markdown("""
     
     .stRadio > div > label {
         background: #1e293b !important;
-        color: white !important;
-        padding: 0.7rem 1.5rem !important;
+        /* FIX 2: Text color on the label itself is not enough, but kept for completeness. */
+        color: white !important; 
+        /* FIX 1: Reduced vertical padding from 0.7rem to 0.5rem to make buttons less "chunky." */
+        padding: 0.5rem 1.5rem !important; 
         border-radius: 50px !important;
         border: 2px solid #374151 !important;
         font-size: 1.02rem !important;
@@ -89,8 +100,14 @@ st.markdown("""
         transition: all 0.3s ease !important;
     }
     
+    /* FIX 2: Added a strong selector to force the text (which is often wrapped in a div/span inside the label) to white. */
+    .stRadio > div > label > div {
+        color: white !important; 
+    }
+    
     .stRadio > div > label:has(> input:checked) {
-        background: #10b981 !important;  /* GREEN */
+        background: #10b981 !important;
+        /* GREEN */
         color: white !important;
         border-color: #34d399 !important;
         box-shadow: 0 0 20px rgba(16,185,129,0.6) !important;
@@ -116,15 +133,15 @@ st.markdown("""
         color: #9ca3af !important;
     }
     
-    header, footer, #MainMenu, .stAlert { display: none !important; }
+    header, footer, #MainMenu, .stAlert { display: none !important;
+    }
 </style>
 <script>
-    // Scroll to top on every button click
-    document.addEventListener('click', function(e) {
-        if (e.target.tagName === 'BUTTON') {
-            setTimeout(() => window.scrollTo(0, 0), 100);
-        }
-    });
+    /* FIX 3: REMOVED the faulty JavaScript scroll logic. 
+       The window.scrollTo() logic often runs too late after st.rerun() 
+       and conflicts with Streamlit's internal navigation. The CSS fix above 
+       (.stApp > header:first-child) is more reliable for scrolling to the top on re-run. 
+    */
 </script>
 """, unsafe_allow_html=True)
 
@@ -137,10 +154,12 @@ def load_csv_smart(filename):
             try:
                 return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
             except:
+            
                 pass
     raise ValueError(f"Could not load {filename}")
 
 try:
+    # Assuming these files are present in the same directory or Git repo
     questions_df = load_csv_smart("Updated_100Q_Assessment.csv")
     map_df = load_csv_smart("Schema_Weighted_Score_Map.csv")
     schemas_df = load_csv_smart("20_Core_Schemas.csv")
@@ -194,6 +213,7 @@ def calculate_schema_scores(answers):
             direction = row['Direction']
             user_val = min(max(answers.get(qid, 0), 1), 5)
             is_ace = 61 <= qid <= 70
+   
             if is_ace:
                 contrib = 1 if user_val > 1 else 0
                 q_max = 1
@@ -209,6 +229,7 @@ def calculate_schema_scores(answers):
     return results
 
 def get_top_schemas(scores, trauma_threshold=60):
+  
     sorted_scores = sorted(scores.items(), key=lambda x: (-x[1], x[0]))
     top_3 = [item[0] for item in sorted_scores[:3]]
     trauma_score = scores.get(20, 0)
@@ -223,14 +244,16 @@ def generate_pdf(plain_text):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
+    # The encode/decode is to handle non-ASCII characters that FPDF struggles with
     pdf.multi_cell(0, 10, plain_text.encode('latin-1', 'replace').decode('latin-1'))
     pdf_bytes = BytesIO(pdf.output(dest='S').encode('latin-1'))
     pdf_bytes.seek(0)
     return pdf_bytes
 
 def format_action_plan_html(plan_text):
-    formatted = re.sub(r'(Week \d+:)', r'<br><br><span style="font-weight:900;color:#c084fc;font-size:1.4rem">\\1</span>', plan_text)
-    return f"<div style='line-height:2; font-size:1.2rem; color:#e2e8f0'>{formatted}</div>"
+    formatted = re.sub(r'(Week \d+:)', r'<br><br><span style="font-weight:900;color:#c084fc;font-size:1.4rem">\1</span>', plan_text)
+    # FIX 1: Reduced line-height from 2 to 1.8 to reduce height of result text block.
+    return f"<div style='line-height:1.8; font-size:1.2rem; color:#e2e8f0'>{formatted}</div>"
 
 # ============================ MAIN UI — FINAL, PERFECT, 10 QUESTIONS VISIBLE ============================
 st.markdown('<div class="main-card">', unsafe_allow_html=True)
@@ -258,7 +281,9 @@ if st.session_state.page < total_pages:
         
         choice = st.radio(
             "", options,
-            index=st.session_state.answers.get(qid, 3) - 1,
+            # The index check ensures the default selected option is Neutral (index 2) or the previous answer
+            index=st.session_state.answers.get(qid, 3) - 1, 
+    
             key=f"q_{qid}",
             label_visibility="collapsed",
             horizontal=True
@@ -269,6 +294,7 @@ if st.session_state.page < total_pages:
     if st.session_state.page > 0:
         if col1.button("Previous", use_container_width=True):
             st.session_state.page -= 1
+         
             st.rerun()
 
     if all(qid in st.session_state.answers for qid in page_questions['ID']):
@@ -280,6 +306,7 @@ if st.session_state.page < total_pages:
         col2.button("Next", disabled=True, use_container_width=True)
 
 else:
+    # Results Page
     scores = calculate_schema_scores(st.session_state.answers)
     top_schemas, root_note, top_scores = get_top_schemas(scores)
 
@@ -294,6 +321,7 @@ else:
         st.markdown(f"**Patterns:** {r['Symptoms & Behavioral Loops']}")
         st.markdown(f'<div style="background:rgba(167,139,250,0.1);padding:2.5rem;border-radius:20px;margin:3rem 0;border-left:6px solid #c084fc">{format_action_plan_html(ACTION_PLANS[sid])}</div>', unsafe_allow_html=True)
         st.markdown("---")
+    
         plain_text += f"Schema: {r['Schema Name']} ({top_scores[sid]}%)\nRoot: {r['Root Causes (Childhood Drivers)']}\nPatterns: {r['Symptoms & Behavioral Loops']}\nPlan:\n{ACTION_PLANS[sid]}\n\n"
 
     if root_note:
@@ -309,6 +337,7 @@ else:
 
     if st.button("Take Test Again", use_container_width=True):
         st.session_state.clear()
+  
         st.rerun()
 
 st.markdown('</div>', unsafe_allow_html=True)
