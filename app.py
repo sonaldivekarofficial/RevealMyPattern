@@ -1,4 +1,4 @@
-Pythonimport streamlit as st
+import streamlit as st
 import pandas as pd
 from io import BytesIO
 import re
@@ -8,8 +8,7 @@ import streamlit.components.v1 as components
 st.set_page_config(layout="centered", page_title="Latent Recursion Test")
 
 # ============================ 100% BULLETPROOF PREMIUM DESIGN ============================
-components.html(
-    """
+components.html("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap');
     
@@ -68,7 +67,6 @@ components.html(
         margin: 5rem 0 3rem 0 !important;
     }
     
-    /* TEAL GLOW — NOW ACTUALLY WORKS */
     div[data-testid="stRadio"] > div {
         gap: 1.8rem !important;
         justify-content: center !important;
@@ -95,7 +93,6 @@ components.html(
         font-weight: 900 !important;
     }
     
-    /* PRIMARY BUTTON — TEAL, NOT RED */
     .stButton > button[kind="primary"] {
         background: #06b6d4 !important;
         border: none !important;
@@ -106,17 +103,13 @@ components.html(
         box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4) !important;
     }
     
-    /* HIDE STREAMLIT TRASH */
     #MainMenu, footer, header, .stAlert { visibility: hidden !important; }
 </style>
 
 <script>
-    // This will NEVER break the CSS again
     setTimeout(() => window.parent.scrollTo(0, 0), 100);
 </script>
-    """,
-    height=0,
-)
+""", height=0)
 
 # ============================ DATA LOADING ============================
 def load_csv_smart(filename):
@@ -170,7 +163,6 @@ if 'page' not in st.session_state:
 if 'answers' not in st.session_state:
     st.session_state.answers = {}
 
-# ============================ SCORING & RESULTS ============================
 def calculate_schema_scores(answers):
     if len(answers) != len(questions_df):
         return {}
@@ -222,7 +214,6 @@ def format_action_plan_html(plan_text):
     formatted = re.sub(r'(Week \d+:)', r'<br><br><span style="font-weight:900;color:#c084fc;font-size:1.4rem">\\1</span>', plan_text)
     return f"<div style='line-height:2.2; font-size:1.2rem; color:#e2e8f0'>{formatted}</div>"
 
-# ============================ MAIN UI — FINAL ============================
 with st.container():
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
 
@@ -263,17 +254,17 @@ with st.container():
 
         col1, col2 = st.columns([1, 1])
         if st.session_state.page > 0:
-            if col1.button("← Previous", use_container_width=True):
+            if col1.button("Previous", use_container_width=True):
                 st.session_state.page -= 1
                 st.rerun()
 
         if all(qid in st.session_state.answers for qid in page_questions['ID']):
-            label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next →"
+            label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next"
             if col2.button(label, type="primary", use_container_width=True):
                 st.session_state.page += 1
                 st.rerun()
         else:
-            col2.button("Next →", disabled=True, use_container_width=True)
+            col2.button("Next", disabled=True, use_container_width=True)
 
     else:
         scores = calculate_schema_scores(st.session_state.answers)
