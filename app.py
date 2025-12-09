@@ -17,9 +17,8 @@ st.markdown("""
         color: #e2e8f0 !important;
     }
     
-    /* FIX 2: Ensures the viewport scrolls to the very top on page re-run. */
-    /* By targeting the root Streamlit content container and setting its top padding to zero, 
-       we prevent it from scrolling to the last focused element (the button). */
+    /* FIX 2 (Scroll): Ensures the viewport scrolls to the very top on page re-run. 
+       This CSS rule is more reliable than the faulty JavaScript. */
     .stApp > header:first-child { 
         padding-top: 0 !important; 
     }
@@ -29,7 +28,7 @@ st.markdown("""
 {
         background: rgba(17,24,39,0.97) !important;
         border-radius: 32px !important;
-        /* FIX 1: Reduced vertical padding from 3.5rem to 1.8rem to reduce overall page height. */
+        /* FIX 1 (Text Size): Reduced vertical padding from 3.5rem to 1.8rem to reduce overall page height. */
         padding: 1.8rem 3rem !important; 
         max-width: 960px !important;
         margin: 2rem auto !important;
@@ -75,7 +74,7 @@ st.markdown("""
         text-align: center !important;
         color: #ffffff !important;
         line-height: 1.48 !important;
-        /* FIX 1: Reduced vertical margin to reduce vertical space between questions. */
+        /* FIX 1 (Text Size): Reduced vertical margin from 1.1rem/0.9rem to 0.5rem/0.4rem. */
         margin: 0.5rem 0 0.4rem 0 !important; 
     }
     
@@ -89,7 +88,8 @@ st.markdown("""
     
     .stRadio > div > label {
         background: #1e293b !important;
-        /* FIX 1: Reduced vertical padding from 0.7rem to 0.4rem to make buttons much leaner. */
+        color: white !important;
+        /* FIX 1 (Lean Buttons): Reduced vertical padding from 0.7rem to 0.4rem. */
         padding: 0.4rem 1.5rem !important; 
         border-radius: 50px !important;
         border: 2px solid #374151 !important;
@@ -100,7 +100,7 @@ st.markdown("""
         transition: all 0.3s ease !important;
     }
     
-    /* Force text color inside the label to white (Fix from previous iteration) */
+    /* FIX (Text Color): Ensures the actual text element inside the label is white. */
     .stRadio > div > label > div {
         color: white !important; 
     }
@@ -124,10 +124,14 @@ st.markdown("""
         font-weight: 700 !important;
         padding: 0 2.5rem !important;
         margin: 1rem auto !important;
-        /* FIX 2: Removed width: 100% !important; from the generic button. 
-           This allows the buttons to be sized by their content when placed in a column. 
-           We will use the use_container_width=True argument in Python if 100% width is needed. */
         display: block !important;
+        /* FIX 2 (Centering): Removed width: 100% so that the button can be centered 
+           via 'margin: 1rem auto !important;' when in a single column. */
+    }
+    
+    /* FIX 2 (Centering): Explicitly force button in a single Streamlit column to center */
+    .stButton > button {
+        margin: 1rem auto !important; /* Forces horizontal center */
     }
     
     button:disabled {
@@ -135,17 +139,12 @@ st.markdown("""
         color: #9ca3af !important;
     }
     
-    /* FIX 2: Added a CSS class for centering the button column when there is only one. */
-    .stButton > button {
-        margin: 1rem auto !important; /* Forces horizontal center */
-        display: block !important; /* Ensures margin auto works */
-    }
-    
     header, footer, #MainMenu, .stAlert { display: none !important;
     }
 </style>
 <script>
-    /* JavaScript scroll logic remains removed, relying on the robust CSS fix for st.rerun() */
+    /* FIX 2 (Scroll): The old JavaScript scroll logic was removed because it 
+       conflicts with st.rerun(). The CSS fix is used instead. */
 </script>
 """, unsafe_allow_html=True)
 
@@ -254,7 +253,7 @@ def generate_pdf(plain_text):
 
 def format_action_plan_html(plan_text):
     formatted = re.sub(r'(Week \d+:)', r'<br><br><span style="font-weight:900;color:#c084fc;font-size:1.4rem">\1</span>', plan_text)
-    # FIX 1: Reduced line-height from 2 to 1.8 to reduce height of result text block.
+    # FIX 1 (Text Size): Reduced line-height from 2 to 1.8 to reduce height of result text block.
     return f"<div style='line-height:1.8; font-size:1.2rem; color:#e2e8f0'>{formatted}</div>"
 
 # ============================ MAIN UI — FINAL, PERFECT, 10 QUESTIONS VISIBLE ============================
@@ -284,26 +283,26 @@ if st.session_state.page < total_pages:
         choice = st.radio(
             "", options,
             index=st.session_state.answers.get(qid, 3) - 1,
-    
             key=f"q_{qid}",
             label_visibility="collapsed",
             horizontal=True
         )
         st.session_state.answers[qid] = options.index(choice) + 1
 
-    # FIX 2: Check if only the 'Next' button needs to be displayed (i.e., on Page 0)
+    # FIX 2 (Centering): Dynamic column creation for centering on the first page
     if st.session_state.page == 0:
-        # Use a single column to keep the button centered (default Streamlit behavior when only one element is in a column)
+        # On Page 0, use a single column to enforce centering
         col1 = st.columns([1])[0] 
-        prev_col = None
+        col2 = None
         next_col = col1
     else:
-        # Use two columns for Previous/Next buttons on subsequent pages
-        prev_col, next_col = st.columns([1, 1])
+        # On subsequent pages, use two columns for Previous/Next
+        col1, col2 = st.columns([1, 1])
+        next_col = col2
 
     # Previous Button logic (Only visible if not on the first page)
-    if st.session_state.page > 0 and prev_col:
-        if prev_col.button("Previous", use_container_width=True):
+    if st.session_state.page > 0 and col1:
+        if col1.button("Previous", use_container_width=True):
             st.session_state.page -= 1
             st.rerun()
 
@@ -311,13 +310,13 @@ if st.session_state.page < total_pages:
     if next_col:
         if all(qid in st.session_state.answers for qid in page_questions['ID']):
             label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next"
-            # Setting use_container_width=False ensures the button is sized by the CSS 
-            # and centered via the single-column setup on the first page.
+            # use_container_width=False is key here to let the CSS center the button 
+            # when it's in the single column on Page 0.
             if next_col.button(label, type="primary", use_container_width=False): 
                 st.session_state.page += 1
                 st.rerun()
         else:
-            # Setting use_container_width=False here matches the active button size/centering
+            # Disabled button must match the size/centering of the active button
             next_col.button("Next", disabled=True, use_container_width=False)
 
 else:
@@ -352,7 +351,6 @@ else:
 
     if st.button("Take Test Again", use_container_width=True):
         st.session_state.clear()
-  
         st.rerun()
 
 st.markdown('</div>', unsafe_allow_html=True)
