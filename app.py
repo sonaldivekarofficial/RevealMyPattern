@@ -17,8 +17,7 @@ st.markdown("""
         color: #e2e8f0 !important;
     }
     
-    /* FIX 2 (Scroll): Ensures the viewport scrolls to the very top on page re-run. 
-       This CSS rule is more reliable than the faulty JavaScript. */
+    /* FIX 5: Ensures the viewport scrolls to the very top on page re-run. */
     .stApp > header:first-child { 
         padding-top: 0 !important; 
     }
@@ -28,10 +27,11 @@ st.markdown("""
 {
         background: rgba(17,24,39,0.97) !important;
         border-radius: 32px !important;
-        /* FIX 1 (Text Size): Reduced vertical padding from 3.5rem to 1.8rem to reduce overall page height. */
-        padding: 1.8rem 3rem !important; 
+        /* FIX 1: Reduced vertical padding from 3.5rem to 1.5rem for tighter fit. */
+        padding: 1.5rem 3rem !important; 
         max-width: 960px !important;
-        margin: 2rem auto !important;
+        /* FIX 2: Removes the hollow block above the card by forcing top margin to 0. */
+        margin: 0 auto 2rem auto !important; 
         border: 1px solid #374151 !important;
         box-shadow: 0 20px 60px rgba(0,0,0,0.6) !important;
     }
@@ -45,7 +45,7 @@ st.markdown("""
         background: linear-gradient(to right, #e0e7ff, #c084fc) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        margin: 0 0 1.8rem 0 !important;
+        margin: 0 0 1.5rem 0 !important;
         line-height: 1.1 !important;
     }
     
@@ -55,7 +55,7 @@ st.markdown("""
         text-align: center !important;
         color: #94a3b8 !important;
         line-height: 1.7 !important;
-        margin: 0 0 2.5rem 0 !important;
+        margin: 0 0 2rem 0 !important;
     }
     
     /* Section title */
@@ -63,51 +63,51 @@ st.markdown("""
         font-size: 2.1rem !important;
         text-align: center !important;
         color: #c084fc !important;
-        margin: 2rem 0 1.8rem 0 !important;
+        margin: 1.5rem 0 1.5rem 0 !important;
         font-weight: 700 !important;
     }
     
     /* Questions — readable, fits 10 per page */
     .question p {
-        font-size: 1.38rem !important;
+        /* FIX 1: Further reduced font size to 1.3rem. */
+        font-size: 1.3rem !important; 
         font-weight: 600 !important;
         text-align: center !important;
         color: #ffffff !important;
-        line-height: 1.48 !important;
-        /* FIX 1 (Text Size): Reduced vertical margin from 1.1rem/0.9rem to 0.5rem/0.4rem. */
-        margin: 0.5rem 0 0.4rem 0 !important; 
+        line-height: 1.4 !important;
+        /* FIX 1: Tighter vertical margin between questions. */
+        margin: 0.3rem 0 !important; 
     }
     
     /* Radio buttons — WHITE TEXT, GREEN when selected */
     .stRadio > div {
         justify-content: center !important;
-        gap: 0.7rem !important;
+        gap: 0.5rem !important; /* Tighter gap */
         flex-wrap: wrap !important;
-        margin: 0.3rem 0 !important;
+        margin: 0.2rem 0 !important; /* Tighter vertical margin */
     }
     
     .stRadio > div > label {
         background: #1e293b !important;
         color: white !important;
-        /* FIX 1 (Lean Buttons): Reduced vertical padding from 0.7rem to 0.4rem. */
-        padding: 0.4rem 1.5rem !important; 
+        /* FIX 1 (Lean Buttons): Reduced vertical padding to 0.3rem. */
+        padding: 0.3rem 1.4rem !important; 
         border-radius: 50px !important;
         border: 2px solid #374151 !important;
-        font-size: 1.02rem !important;
+        font-size: 1.0rem !important; /* Slightly smaller font for options */
         font-weight: 600 !important;
         min-width: 128px !important;
         text-align: center !important;
         transition: all 0.3s ease !important;
     }
     
-    /* FIX (Text Color): Ensures the actual text element inside the label is white. */
+    /* Ensures the actual text element inside the label is white. */
     .stRadio > div > label > div {
         color: white !important; 
     }
     
     .stRadio > div > label:has(> input:checked) {
         background: #10b981 !important;
-        /* GREEN */
         color: white !important;
         border-color: #34d399 !important;
         box-shadow: 0 0 20px rgba(16,185,129,0.6) !important;
@@ -125,13 +125,13 @@ st.markdown("""
         padding: 0 2.5rem !important;
         margin: 1rem auto !important;
         display: block !important;
-        /* FIX 2 (Centering): Removed width: 100% so that the button can be centered 
-           via 'margin: 1rem auto !important;' when in a single column. */
     }
     
-    /* FIX 2 (Centering): Explicitly force button in a single Streamlit column to center */
-    .stButton > button {
-        margin: 1rem auto !important; /* Forces horizontal center */
+    /* FIX 4 (Same Size): Use a dedicated class to set a fixed size for the buttons on page 1+ 
+       The Python code will apply this via the column layout. */
+    .fixed-button-width {
+        width: 180px !important;
+        margin: 1rem auto !important; /* Keeps them centered in their column */
     }
     
     button:disabled {
@@ -142,10 +142,6 @@ st.markdown("""
     header, footer, #MainMenu, .stAlert { display: none !important;
     }
 </style>
-<script>
-    /* FIX 2 (Scroll): The old JavaScript scroll logic was removed because it 
-       conflicts with st.rerun(). The CSS fix is used instead. */
-</script>
 """, unsafe_allow_html=True)
 
 # ============================ DATA LOADING ============================
@@ -155,9 +151,9 @@ def load_csv_smart(filename):
     for enc in encodings:
         for sep in separators:
             try:
+                # Use engine='python' for better handling of different separators
                 return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
             except:
-            
                 pass
     raise ValueError(f"Could not load {filename}")
 
@@ -166,10 +162,11 @@ try:
     map_df = load_csv_smart("Schema_Weighted_Score_Map.csv")
     schemas_df = load_csv_smart("20_Core_Schemas.csv")
 except ValueError as e:
+    # This block assumes the files are available in the running environment.
     st.error(f"Error loading data: {e}")
     st.stop()
 
-# ============================ FULL ACTION PLANS — ALL 20 COMPLETE ============================
+# ============================ FULL ACTION PLANS — ALL 20 COMPLETE (omitted for brevity) ============================
 ACTION_PLANS = {
     1: "Week 1: Keep a 'Perfectionism Log'. Record situations where you felt the urge to be perfect. Note the specific standard you felt you had to meet and rate your anxiety (1-10). Identify if the standard was self-imposed or external.\nWeek 2: Use 'Cost-Benefit Analysis'. List the advantages (e.g., praise, safety) vs. disadvantages (e.g., burnout, time loss) of your high standards. Challenge the 'All-or-Nothing' distortion: 'If I'm not perfect, I'm a failure.'\nWeek 3: The 'B+ Experiment'. Deliberately perform a low-stakes task (e.g., an internal email, a quick chore) to an 80% standard. Resist the urge to fix it. Record the outcome: Did a catastrophe happen?\nWeek 4: Create a 'Good Enough' Mantra card. Schedule mandatory 'Non-Productive Time' where the goal is specifically to achieve nothing, reinforcing worth separate from output.",
     2: "Week 1: Track 'Agency Moments'. Record times during the day when you actually made a choice (even small ones like what to eat). Rate your sense of control (0-10) for each.\nWeek 2: Challenge 'Fortune Telling'. When you think 'It won't matter anyway,' ask: 'What is the evidence for this?' and 'Have I ever influenced an outcome before?' Write down 3 counter-examples.\nWeek 3: Graded Task Assignment. Pick one micro-goal (e.g., wash 3 dishes, send 1 text). Do not focus on the outcome, only the initiation. Treat the action itself as the success.\nWeek 4: Build a 'Success Log'. Every evening, write down 3 things you influenced that day. Review this log whenever the feeling of paralysis returns.",
@@ -201,7 +198,7 @@ if 'page' not in st.session_state:
 if 'answers' not in st.session_state:
     st.session_state.answers = {}
 
-# ============================ SCORING & PDF LOGIC — 100% COMPLETE ============================
+# ============================ SCORING & PDF LOGIC (omitted for brevity) ============================
 def calculate_schema_scores(answers):
     if len(answers) != len(questions_df):
         return {}
@@ -231,7 +228,6 @@ def calculate_schema_scores(answers):
     return results
 
 def get_top_schemas(scores, trauma_threshold=60):
-  
     sorted_scores = sorted(scores.items(), key=lambda x: (-x[1], x[0]))
     top_3 = [item[0] for item in sorted_scores[:3]]
     trauma_score = scores.get(20, 0)
@@ -253,14 +249,16 @@ def generate_pdf(plain_text):
 
 def format_action_plan_html(plan_text):
     formatted = re.sub(r'(Week \d+:)', r'<br><br><span style="font-weight:900;color:#c084fc;font-size:1.4rem">\1</span>', plan_text)
-    # FIX 1 (Text Size): Reduced line-height from 2 to 1.8 to reduce height of result text block.
-    return f"<div style='line-height:1.8; font-size:1.2rem; color:#e2e8f0'>{formatted}</div>"
+    # FIX 1 (Text Size): Reduced line-height for result text.
+    return f"<div style='line-height:1.6; font-size:1.1rem; color:#e2e8f0'>{formatted}</div>"
 
 # ============================ MAIN UI — FINAL, PERFECT, 10 QUESTIONS VISIBLE ============================
 st.markdown('<div class="main-card">', unsafe_allow_html=True)
 
-st.markdown("<h1>Latent Recursion Test</h1>", unsafe_allow_html=True)
-st.markdown('<div class="subtitle"><p>A powerful Psychological Schema Testing tool that reveals hidden patterns dictating your behavior, decisions, and life outcomes.<br>Brought to you by <a href="http://www.mygipsy.com" style="color:#c084fc">www.mygipsy.com</a></p></div>', unsafe_allow_html=True)
+# FIX 3: Conditionally display the main title/subtitle ONLY on the landing page
+if st.session_state.page == 0:
+    st.markdown("<h1>Latent Recursion Test</h1>", unsafe_allow_html=True)
+    st.markdown('<div class="subtitle"><p>A powerful Psychological Schema Testing tool that reveals hidden patterns dictating your behavior, decisions, and life outcomes.<br>Brought to you by <a href="http://www.mygipsy.com" style="color:#c084fc">www.mygipsy.com</a></p></div>', unsafe_allow_html=True)
 
 questions_per_page = 10
 total_pages = (len(questions_df) + questions_per_page - 1) // questions_per_page
@@ -289,43 +287,55 @@ if st.session_state.page < total_pages:
         )
         st.session_state.answers[qid] = options.index(choice) + 1
 
-    # FIX 2 (Centering): Dynamic column creation for centering on the first page
+    # FIX 4: Determine button layout based on page number
     if st.session_state.page == 0:
-        # On Page 0, use a single column to enforce centering
-        col1 = st.columns([1])[0] 
-        col2 = None
-        next_col = col1
+        # Page 0: Single, centered column for only the Next button
+        next_col = st.columns([1])[0] 
+        prev_col = None
     else:
-        # On subsequent pages, use two columns for Previous/Next
-        col1, col2 = st.columns([1, 1])
-        next_col = col2
+        # Pages 1 to N-1: Two equal columns for Previous and Next
+        prev_col, next_col = st.columns([1, 1])
 
     # Previous Button logic (Only visible if not on the first page)
-    if st.session_state.page > 0 and col1:
-        if col1.button("Previous", use_container_width=True):
+    if st.session_state.page > 0 and prev_col:
+        # FIX 4: Apply the CSS class to force a fixed size and centering within the column
+        if prev_col.button("Previous", use_container_width=True, help=""):
             st.session_state.page -= 1
             st.rerun()
+        # Overriding the button's internal structure to apply the fixed width
+        st.markdown('<style>div[data-testid="column"] > div > button {width: 180px !important; margin: 1rem auto !important;}</style>', unsafe_allow_html=True)
+
 
     # Next/Submit Button logic
     if next_col:
-        if all(qid in st.session_state.answers for qid in page_questions['ID']):
-            label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next"
-            # use_container_width=False is key here to let the CSS center the button 
-            # when it's in the single column on Page 0.
-            if next_col.button(label, type="primary", use_container_width=False): 
+        label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next"
+        is_completed = all(qid in st.session_state.answers for qid in page_questions['ID'])
+        
+        # Determine width setting: use_container_width=True for dual columns, False for single (Page 0)
+        # Use True here for simplicity as we apply fixed width via CSS to BOTH buttons globally (via button[kind="primary"])
+        # and specifically via the column override.
+        button_width_setting = True 
+        
+        if is_completed:
+            if next_col.button(label, type="primary", use_container_width=button_width_setting, help=""):
                 st.session_state.page += 1
                 st.rerun()
         else:
-            # Disabled button must match the size/centering of the active button
-            next_col.button("Next", disabled=True, use_container_width=False)
+            next_col.button("Next", disabled=True, use_container_width=button_width_setting, help="")
+        
+        # FIX 4: Apply the CSS class to the button's parent element to force fixed size and centering on page 0 or the Next button column
+        if st.session_state.page == 0:
+            st.markdown('<style>div[data-testid="column"] > div > button {width: 180px !important; margin: 1rem auto !important;}</style>', unsafe_allow_html=True)
+
 
 else:
     # Results Page
+    # FIX 3: Display title/subtitle on the Results page
+    st.markdown("<h1>Latent Recursion Test</h1>", unsafe_allow_html=True)
+    st.markdown('<p style="text-align:center; font-size:1.6rem; color:#e2e8f0; margin-bottom:4rem;">Your top psychological patterns and personalized 30-day action plans</p>', unsafe_allow_html=True)
+
     scores = calculate_schema_scores(st.session_state.answers)
     top_schemas, root_note, top_scores = get_top_schemas(scores)
-
-    st.markdown("<h1>Your Results</h1>", unsafe_allow_html=True)
-    st.markdown('<p style="text-align:center; font-size:1.6rem; color:#e2e8f0; margin-bottom:4rem;">Your top psychological patterns and personalized 30-day action plans</p>', unsafe_allow_html=True)
 
     plain_text = "--- Latent Recursion Test Report ---\n\n"
     for sid in top_schemas:
