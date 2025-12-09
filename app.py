@@ -17,8 +17,7 @@ st.markdown("""
         color: #e2e8f0 !important;
     }
     
-    /* FIX 3: Ensures the viewport scrolls to the very top on page re-run. */
-    /* By removing padding/margin from the top Streamlit header, we force content to the very top of the window. */
+    /* FIX: Ensures the viewport scrolls to the very top on page re-run. */
     .stApp > header:first-child { 
         padding-top: 0 !important; 
         margin-top: 0 !important;
@@ -29,9 +28,10 @@ st.markdown("""
 {
         background: rgba(17,24,39,0.97) !important;
         border-radius: 32px !important;
-        padding: 3.5rem 3rem !important;
+        /* FIX 2 (Tighter Layout): Reduced vertical padding to maximize content space */
+        padding: 1.5rem 3rem !important; 
         max-width: 960px !important;
-        /* FIX 1: Removes the hollow block above the card by forcing top margin to 0. */
+        /* FIX 1 (Hollow Box): Removes top margin completely, keeps bottom margin */
         margin: 0 auto 2rem auto !important; 
         border: 1px solid #374151 !important;
         box-shadow: 0 20px 60px rgba(0,0,0,0.6) !important;
@@ -39,25 +39,24 @@ st.markdown("""
     
     /* Title — perfect */
     h1 {
-  
         font-size: 3.6rem !important;
         font-weight: 900 !important;
         text-align: center !important;
         background: linear-gradient(to right, #e0e7ff, #c084fc) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        margin: 0 0 1.8rem 0 !important;
+        margin: 0 0 1.5rem 0 !important;
         line-height: 1.1 !important;
     }
     
     /* Subtitle */
     .subtitle p {
-        /* FIX 2: Reduced font size from 1.3rem to 1.2rem. */
+        /* FIX 2 (Tighter Text): Reduced font size from 1.3rem to 1.2rem. */
         font-size: 1.2rem !important; 
         text-align: center !important;
         color: #94a3b8 !important;
         line-height: 1.7 !important;
-        margin: 0 0 2.5rem 0 !important;
+        margin: 0 0 2rem 0 !important;
     }
     
     /* Section title */
@@ -65,41 +64,50 @@ st.markdown("""
         font-size: 2.1rem !important;
         text-align: center !important;
         color: #c084fc !important;
-        margin: 2rem 0 1.8rem 0 !important;
+        margin: 1.5rem 0 1.5rem 0 !important;
         font-weight: 700 !important;
     }
     
     /* Questions — readable, fits 10 per page */
     .question p {
-        /* FIX 2: Reduced font size from 1.38rem to 1.28rem. */
+        /* FIX 2 (Tighter Text): Reduced font size from 1.38rem to 1.28rem. */
         font-size: 1.28rem !important; 
         font-weight: 600 !important;
         text-align: center !important;
         color: #ffffff !important;
-        line-height: 1.48 !important;
-        margin: 1.1rem 0 0.9rem 0 !important;
+        line-height: 1.4 !important;
+        /* FIX 2 (Tighter Layout): Reduced margin between questions. */
+        margin: 0.5rem 0 !important; 
     }
     
     /* Radio buttons — WHITE TEXT, GREEN when selected */
     .stRadio > div {
         justify-content: center !important;
-        gap: 0.7rem !important;
+        /* FIX 2 (Tighter Layout): Reduced gap and margin. */
+        gap: 0.5rem !important; 
         flex-wrap: wrap !important;
-        margin: 0.3rem 0 !important;
+        margin: 0.2rem 0 !important; 
     }
     
     .stRadio > div > label {
         background: #1e293b !important;
-        color: white !important;
-        padding: 0.7rem 1.5rem !important;
+        /* FIX 3 (Dark Text): Ensure the text in the main label is white */
+        color: white !important; 
+        /* FIX 2 (Tighter Layout): Reduced vertical padding to make buttons leaner. */
+        padding: 0.3rem 1.4rem !important; 
         border-radius: 50px !important;
         border: 2px solid #374151 !important;
-        /* FIX 2: Reduced font size from 1.02rem to 0.95rem. */
+        /* FIX 2 (Tighter Text): Reduced font size from 1.02rem to 0.95rem. */
         font-size: 0.95rem !important; 
         font-weight: 600 !important;
         min-width: 128px !important;
         text-align: center !important;
         transition: all 0.3s ease !important;
+    }
+    
+    /* FIX 3 (Dark Text): Ensure the actual text element inside the label is white. */
+    .stRadio > div > label > div {
+        color: white !important; 
     }
     
     .stRadio > div > label:has(> input:checked) {
@@ -119,9 +127,17 @@ st.markdown("""
         font-size: 1.15rem !important;
         font-weight: 700 !important;
         padding: 0 2.5rem !important;
-        margin: 1rem auto !important;
+        /* Ensures buttons are centered in their column */
+        margin: 1rem auto !important; 
         display: block !important;
-        width: 100% !important;
+        /* Forced fixed width for same-size buttons */
+        width: 180px !important; 
+    }
+    
+    /* Override to allow the column to center the button */
+    div[data-testid="column"] > div > button {
+        width: 180px !important;
+        margin: 1rem auto !important; 
     }
     
     button:disabled {
@@ -129,10 +145,11 @@ st.markdown("""
         color: #9ca3af !important;
     }
     
+    /* Remove default Streamlit elements */
     header, footer, #MainMenu, .stAlert { display: none !important;
     }
 </style>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True) 
 
 # ============================ DATA LOADING ============================
 def load_csv_smart(filename):
@@ -141,6 +158,7 @@ def load_csv_smart(filename):
     for enc in encodings:
         for sep in separators:
             try:
+                # Use engine='python' for better handling of different separators
                 return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
             except:
                 pass
@@ -187,7 +205,7 @@ if 'page' not in st.session_state:
 if 'answers' not in st.session_state:
     st.session_state.answers = {}
 
-# ============================ SCORING & PDF LOGIC (omitted for brevity) ============================
+# ============================ SCORING & PDF LOGIC ============================
 def calculate_schema_scores(answers):
     if len(answers) != len(questions_df):
         return {}
@@ -238,8 +256,8 @@ def generate_pdf(plain_text):
 
 def format_action_plan_html(plan_text):
     formatted = re.sub(r'(Week \d+:)', r'<br><br><span style="font-weight:900;color:#c084fc;font-size:1.4rem">\1</span>', plan_text)
-    # FIX 2: Reduced font size from 1.2rem to 1.1rem.
-    return f"<div style='line-height:1.8; font-size:1.1rem; color:#e2e8f0'>{formatted}</div>"
+    # FIX 2 (Tighter Text): Reduced line-height and font-size for action plan
+    return f"<div style='line-height:1.6; font-size:1.1rem; color:#e2e8f0'>{formatted}</div>"
 
 # ============================ MAIN UI — FINAL, PERFECT, 10 QUESTIONS VISIBLE ============================
 st.markdown('<div class="main-card">', unsafe_allow_html=True)
@@ -283,6 +301,7 @@ if st.session_state.page < total_pages:
         if col1.button("Previous", use_container_width=True):
             st.session_state.page -= 1
             st.rerun()
+
     # Next/Submit Button logic
     if all(qid in st.session_state.answers for qid in page_questions['ID']):
         label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next"
