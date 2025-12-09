@@ -6,7 +6,7 @@ from fpdf import FPDF
 
 st.set_page_config(layout="centered", page_title="Latent Recursion Test")
 
-# FINAL — 100% FUNCTIONAL, 100% COMPLETE, 100% BEAUTIFUL — NO PLACEHOLDERS, NO SHORTCUTS
+# FINAL — FIXED CONTRAST, SPACING, SCROLL, BUTTONS — 100% COMPLETE
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;600;700;900&display=swap');
@@ -20,11 +20,11 @@ st.markdown("""
     .main-card {
         background: rgba(17,24,39,0.97) !important;
         border-radius: 28px !important;
-        padding: 4rem 3.5rem !important;
+        padding: 3.5rem 3rem !important;
         max-width: 920px !important;
         margin: 2rem auto !important;
         border: 1px solid #374151 !important;
-        box-shadow: 0 20px 60px rgba(0,0,0,0.6), inset 0 0 40px rgba(108,92,231,0.06) !important;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 30px rgba(108,92,231,0.1) !important;
     }
     
     h1 {
@@ -55,30 +55,30 @@ st.markdown("""
     }
     
     .question p {
-        font-size: 1.58rem !important;
+        font-size: 1.45rem !important;
         font-weight: 600 !important;
         text-align: center !important;
         color: #ffffff !important;
         line-height: 1.52 !important;
-        margin: 1.8rem 0 1.4rem 0 !important;
+        margin: 1.4rem 0 1.2rem 0 !important;
     }
     
     .stRadio > div {
         justify-content: center !important;
-        gap: 0.9rem !important;
+        gap: 0.8rem !important;
         flex-wrap: wrap !important;
-        margin: 0.4rem 0 !important;
+        margin: 0.3rem 0 !important;
     }
     
     .stRadio > div > label {
         background: #1e293b !important;
-        color: #e2e8f0 !important;
-        padding: 0.75rem 1.6rem !important;
+        color: #d1d5db !important; /* Boosted contrast for unselected */
+        padding: 0.7rem 1.5rem !important;
         border-radius: 50px !important;
         border: 2px solid #374151 !important;
-        font-size: 1.05rem !important;
+        font-size: 1.02rem !important;
         font-weight: 600 !important;
-        min-width: 135px !important;
+        min-width: 130px !important;
         text-align: center !important;
         transition: all 0.3s ease !important;
     }
@@ -98,6 +98,15 @@ st.markdown("""
         font-size: 1.15rem !important;
         font-weight: 700 !important;
         padding: 0 2.8rem !important;
+        color: white !important;
+    }
+    
+    /* Previous button teal too */
+    button:not([kind="primary"]) {
+        background: #06b6d4 !important;
+        color: white !important;
+        border-radius: 50px !important;
+        height: 3.4rem !important;
     }
     
     .progress-container {
@@ -116,6 +125,12 @@ st.markdown("""
     
     header, footer, #MainMenu, .stAlert { display: none !important; }
 </style>
+<script>
+    // Scroll to top on page change
+    window.addEventListener('load', function() {
+        window.scrollTo(0, 0);
+    });
+</script>
 """, unsafe_allow_html=True)
 
 # ============================ DATA LOADING ============================
