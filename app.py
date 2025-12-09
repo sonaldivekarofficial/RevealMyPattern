@@ -23,34 +23,51 @@ components.html("""
         box-shadow:0 30px 90px rgba(0,0,0,0.7);
     }
     
-    /* QUESTIONS — IMPOSSIBLE TO MISS */
+    /* ===== 1) MUCH LARGER QUESTION TEXT ===== */
     .big-question {
-        font-size: 900 1.95rem 'Inter', sans-serif !important;
+        font-size: 2.4rem !important;
+        font-weight: 800 !important;
         color:#ffffff !important;
         text-align:center !important;
         margin: 7rem 0 5rem 0 !important;
-        line-height:1.9 !important;
+        line-height:1.5 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
-    /* NEON GREEN SELECTED RADIO — BULLETPROOF */
-    div[data-testid="stRadio"] label[data-checked="true"] {
+    /* ===== 2) SELECTED RADIO = BRIGHT NEON GREEN (100% RELIABLE) ===== */
+    /* Reset default appearance */
+    div[data-testid="stRadio"] > div > label > div {
+        background: transparent !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* When radio is checked → make background + text glow green */
+    div[data-testid="stRadio"] input:checked + div {
         background: #10b981 !important;
+        border-color: #10b981 !important;
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.7) !important;
+    }
+    
+    div[data-testid="stRadio"] input:checked + div + div {
         color: white !important;
         font-weight: 900 !important;
-        border-radius: 12px !important;
-        padding: 1rem !important;
-        box-shadow: 0 0 35px #10b981 !important;
-        transform: scale(1.1) !important;
     }
+    
+    /* Optional: make the whole label slightly larger when selected */
+    div[data-testid="stRadio"] input:checked ~ div {
+        transform: scale(1.05);
+    }
+
+    /* ===== 3) AUTO SCROLL TO TOP ON EVERY PAGE CHANGE ===== */
+    <script>
+        // Streamlit reruns → scroll to top instantly + smoothly
+        window.parent.document.querySelector('.main')?.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    </script>
     
     /* HIDE STREAMLIT CRAP */
     #MainMenu, footer, header, .stAlert { visibility:hidden !important; }
 </style>
-
-<script>
-    // Force scroll to top on every rerun
-    window.parent.scrollTo(0,0);
-</script>
 """, height=0)
 
 # ============================ YOUR 100% ORIGINAL LOGIC BELOW ============================
