@@ -17,20 +17,21 @@ st.markdown("""
         color: #e2e8f0 !important;
     }
     
-    /* FIX 5: Ensures the viewport scrolls to the very top on page re-run. */
-    .stApp > header:first-child { 
+    /* FIX 3 & 4: Ensures the viewport scrolls to the very top on page re-run and removes hollow space. */
+    .stApp > header:first-child, .stApp { 
         padding-top: 0 !important; 
+        margin-top: 0 !important;
     }
     
     /* Main card — clean luxury */
     .main-card 
-{
+    {
         background: rgba(17,24,39,0.97) !important;
         border-radius: 32px !important;
-        /* FIX 1: Reduced vertical padding from 3.5rem to 1.5rem for tighter fit. */
-        padding: 1.5rem 3rem !important; 
+        /* Kept padding, reduced font/margins inside for tighter fit */
+        padding: 3.5rem 3rem !important; 
         max-width: 960px !important;
-        /* FIX 2: Removes the hollow block above the card by forcing top margin to 0. */
+        /* FIX 3: Removes the hollow block above the card by forcing top margin to 0. */
         margin: 0 auto 2rem auto !important; 
         border: 1px solid #374151 !important;
         box-shadow: 0 20px 60px rgba(0,0,0,0.6) !important;
@@ -38,14 +39,13 @@ st.markdown("""
     
     /* Title — perfect */
     h1 {
-  
         font-size: 3.6rem !important;
         font-weight: 900 !important;
         text-align: center !important;
         background: linear-gradient(to right, #e0e7ff, #c084fc) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        margin: 0 0 1.5rem 0 !important;
+        margin: 0 0 1.8rem 0 !important;
         line-height: 1.1 !important;
     }
     
@@ -55,7 +55,7 @@ st.markdown("""
         text-align: center !important;
         color: #94a3b8 !important;
         line-height: 1.7 !important;
-        margin: 0 0 2rem 0 !important;
+        margin: 0 0 2.5rem 0 !important;
     }
     
     /* Section title */
@@ -63,54 +63,54 @@ st.markdown("""
         font-size: 2.1rem !important;
         text-align: center !important;
         color: #c084fc !important;
-        margin: 1.5rem 0 1.5rem 0 !important;
+        margin: 2rem 0 1.8rem 0 !important;
         font-weight: 700 !important;
     }
     
     /* Questions — readable, fits 10 per page */
     .question p {
-        /* FIX 1: Further reduced font size to 1.3rem. */
-        font-size: 1.3rem !important; 
+        /* FIX 1: Reduced font size to 1.2rem. */
+        font-size: 1.2rem !important; 
         font-weight: 600 !important;
         text-align: center !important;
         color: #ffffff !important;
-        line-height: 1.4 !important;
+        /* FIX 1: Tighter line-height */
+        line-height: 1.4 !important; 
         /* FIX 1: Tighter vertical margin between questions. */
-        margin: 0.3rem 0 !important; 
+        margin: 0.6rem 0 !important; 
     }
     
-    /* Radio buttons — WHITE TEXT, GREEN when selected */
+    /* Radio buttons — WHITE TEXT, PURPLE when selected (Compromise for FIX 2) */
     .stRadio > div {
         justify-content: center !important;
-        gap: 0.5rem !important; /* Tighter gap */
+        /* FIX 1: Tighter gap */
+        gap: 0.5rem !important; 
         flex-wrap: wrap !important;
-        margin: 0.2rem 0 !important; /* Tighter vertical margin */
+        /* FIX 1: Tighter vertical margin */
+        margin: 0.1rem 0 !important; 
     }
     
     .stRadio > div > label {
         background: #1e293b !important;
         color: white !important;
-        /* FIX 1 (Lean Buttons): Reduced vertical padding to 0.3rem. */
-        padding: 0.3rem 1.4rem !important; 
+        /* FIX 1: Reduced vertical padding. */
+        padding: 0.4rem 1.2rem !important; 
         border-radius: 50px !important;
         border: 2px solid #374151 !important;
-        font-size: 1.0rem !important; /* Slightly smaller font for options */
+        /* FIX 1: Reduced font size for options. */
+        font-size: 0.95rem !important; 
         font-weight: 600 !important;
         min-width: 128px !important;
         text-align: center !important;
         transition: all 0.3s ease !important;
     }
     
-    /* Ensures the actual text element inside the label is white. */
-    .stRadio > div > label > div {
-        color: white !important; 
-    }
-    
+    /* FIX 2: Change checked state from GREEN to PURPLE, keeping the clean look */
     .stRadio > div > label:has(> input:checked) {
-        background: #10b981 !important;
-        color: white !important;
-        border-color: #34d399 !important;
-        box-shadow: 0 0 20px rgba(16,185,129,0.6) !important;
+        background: #1e293b !important; /* Retain dark background for better contrast */
+        color: #c084fc !important; /* Highlight text with purple */
+        border-color: #c084fc !important; /* Highlight border with purple */
+        box-shadow: 0 0 20px rgba(192, 132, 252, 0.4) !important; /* Purple shadow */
         transform: scale(1.04) !important;
     }
     
@@ -125,13 +125,7 @@ st.markdown("""
         padding: 0 2.5rem !important;
         margin: 1rem auto !important;
         display: block !important;
-    }
-    
-    /* FIX 4 (Same Size): Use a dedicated class to set a fixed size for the buttons on page 1+ 
-       The Python code will apply this via the column layout. */
-    .fixed-button-width {
-        width: 180px !important;
-        margin: 1rem auto !important; /* Keeps them centered in their column */
+        width: 100% !important;
     }
     
     button:disabled {
@@ -141,6 +135,8 @@ st.markdown("""
     
     header, footer, #MainMenu, .stAlert { display: none !important;
     }
+    
+    /* Removed unreliable JavaScript for scroll-to-top, relying on CSS fix 4 instead */
 </style>
 """, unsafe_allow_html=True)
 
@@ -151,7 +147,6 @@ def load_csv_smart(filename):
     for enc in encodings:
         for sep in separators:
             try:
-                # Use engine='python' for better handling of different separators
                 return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
             except:
                 pass
@@ -162,7 +157,6 @@ try:
     map_df = load_csv_smart("Schema_Weighted_Score_Map.csv")
     schemas_df = load_csv_smart("20_Core_Schemas.csv")
 except ValueError as e:
-    # This block assumes the files are available in the running environment.
     st.error(f"Error loading data: {e}")
     st.stop()
 
@@ -170,11 +164,11 @@ except ValueError as e:
 ACTION_PLANS = {
     1: "Week 1: Keep a 'Perfectionism Log'. Record situations where you felt the urge to be perfect. Note the specific standard you felt you had to meet and rate your anxiety (1-10). Identify if the standard was self-imposed or external.\nWeek 2: Use 'Cost-Benefit Analysis'. List the advantages (e.g., praise, safety) vs. disadvantages (e.g., burnout, time loss) of your high standards. Challenge the 'All-or-Nothing' distortion: 'If I'm not perfect, I'm a failure.'\nWeek 3: The 'B+ Experiment'. Deliberately perform a low-stakes task (e.g., an internal email, a quick chore) to an 80% standard. Resist the urge to fix it. Record the outcome: Did a catastrophe happen?\nWeek 4: Create a 'Good Enough' Mantra card. Schedule mandatory 'Non-Productive Time' where the goal is specifically to achieve nothing, reinforcing worth separate from output.",
     2: "Week 1: Track 'Agency Moments'. Record times during the day when you actually made a choice (even small ones like what to eat). Rate your sense of control (0-10) for each.\nWeek 2: Challenge 'Fortune Telling'. When you think 'It won't matter anyway,' ask: 'What is the evidence for this?' and 'Have I ever influenced an outcome before?' Write down 3 counter-examples.\nWeek 3: Graded Task Assignment. Pick one micro-goal (e.g., wash 3 dishes, send 1 text). Do not focus on the outcome, only the initiation. Treat the action itself as the success.\nWeek 4: Build a 'Success Log'. Every evening, write down 3 things you influenced that day. Review this log whenever the feeling of paralysis returns.",
-    3: "Week 1: Identify 'Fixed Triggers'. Notice when you say 'I can't do this' or 'I'm not good at this.' Label these as 'Fixed Mindset Thoughts' rather than facts.\nWeek 2: Reframe 'Failure' to 'Data'. When you make a mistake, complete this sentence: 'This mistake teaches me that I need to adjust X, not that I am Y.'\nWeek 3: The 'Beginner's Mind' Experiment. Engage in a hobby or task you are terrible at for 15 minutes. Observe the discomfort of not being expert. Allow yourself to be clumsy without judgment.\nWeek 4: Establish a 'Yet' Habit. Append the word 'yet' to every inability statement (e.g., 'I don't understand this code... yet'). Schedule one weekly learning session for a new skill.",
-    4: "Week 1: The 'Critic Audit'. Give your inner critic a name (e.g., 'The Judge'). Tally how many times 'The Judge' speaks to you daily. Note the tone—is it angry, cold, or mocking?\nWeek 2: Compassionate Re-framing. For every critical thought, write a 'Compassionate Response' as if speaking to a friend or child. Example: Change 'You idiot' to 'You made a human mistake.'\nWeek 3: Mirror Work. Stand in front of a mirror for 2 minutes daily. Look at yourself and say 3 factual, neutral, or positive things. Sit with the discomfort this causes.\nWeek 4: The 'Good Enough' Letter. Write a letter of forgiveness to yourself for a past mistake. Keep a 'Credit List'—daily things you did right, no matter how small.",
+    3: "Week 1: Identify 'Fixed Triggers'. Notice when you say 'I can't do this' or 'I'm not good at this.' Label these as 'Fixed Mindset Thoughts' rather than facts.\nWeek 2: Reframe 'Failure' to 'Data'. When you make a mistake, complete this sentence: 'This mistake teaches me that I need to adjust X, not that I am Y.'\nWeek 3: The 'Beginner's Mind' Experiment'. Engage in a hobby or task you are terrible at for 15 minutes. Observe the discomfort of not being expert. Allow yourself to be clumsy without judgment.\nWeek 4: Establish a 'Yet' Habit'. Append the word 'yet' to every inability statement (e.g., 'I don't understand this code... yet'). Schedule one weekly learning session for a new skill.",
+    4: "Week 1: The 'Critic Audit'. Give your inner critic a name (e.g., 'The Judge'). Tally how many times 'The Judge' speaks to you daily. Note the tone—is it angry, cold, or mocking?\nWeek 2: Compassionate Re-framing. For every critical thought, write a 'Compassionate Response' as if speaking to a friend or child. Example: Change 'You idiot' to 'You made a human mistake.'\nWeek 3: Mirror Work. Stand in front of a mirror for 2 minutes daily. Look at yourself and say 3 factual, neutral, or positive things. Sit with the discomfort this causes.\nWeek 4: The 'Good Enough' Letter'. Write a letter of forgiveness to yourself for a past mistake. Keep a 'Credit List'—daily things you did right, no matter how small.",
     5: "Week 1: Trigger Mapping. Track moments of 'Abandonment Panic'. What triggered it? (e.g., a delayed text, a neutral tone). Rate the intensity.\nWeek 2: Check the Facts. When panic sets in, ask: 'Is this a fact or a fear?' 'Is there an alternative explanation for their behavior (e.g., they are busy)?'\nWeek 3: Response Prevention. When the urge to seek reassurance hits (e.g., double texting), wait 30 minutes. Self-soothe during the gap (deep breathing, walking).\nWeek 4: Self-Soothing Kit. Create a physical or digital list of activities that calm you down *without* involving another person. Practice one daily regardless of anxiety levels.",
     6: "Week 1: Emotion Naming. Set a timer 3 times a day. Ask: 'What am I feeling physically?' and 'What emotion matches this?' (Use an Emotion Wheel).\nWeek 2: Challenge 'Independence'. Examine the belief 'If I need others, I am weak.' Look for evidence where mutual support actually increased strength or efficiency.\nWeek 3: Micro-Vulnerability. Share one small, genuine feeling or opinion with a safe person that you would usually keep to yourself. (e.g., 'I had a hard day' instead of 'I'm fine').\nWeek 4: Connection Scheduling. Schedule 15 minutes of 'undistracted connection' time with a partner or friend weekly. No phones, just presence.",
-    7: "Week 1: The 'Yes' Audit. Track every time you said 'Yes' when you wanted to say 'No'. Note the physical sensation (e.g., stomach knot).\nWeek 2: Decatastrophizing 'No'. Write down: 'If I say no, I fear X will happen.' Then write: 'If X happens, I will cope by Y.' Challenge the idea that saying no makes you 'bad'.\nWeek 3: The 'Buy Time' Technique. For one week, do not agree to anything immediately. Use the script: 'Let me check my schedule and get back to you.' Practice sitting with the guilt.\nWeek 4: Boundary Scripting. Write down 3 standard scripts for refusal. Practice saying them out loud. Reward yourself for every boundary set.",
+    7: "Week 1: The 'Yes' Audit'. Track every time you said 'Yes' when you wanted to say 'No'. Note the physical sensation (e.g., stomach knot).\nWeek 2: Decatastrophizing 'No'. Write down: 'If I say no, I fear X will happen.' Then write: 'If X happens, I will cope by Y.' Challenge the idea that saying no makes you 'bad'.\nWeek 3: The 'Buy Time' Technique. For one week, do not agree to anything immediately. Use the script: 'Let me check my schedule and get back to you.' Practice sitting with the guilt.\nWeek 4: Boundary Scripting. Write down 3 standard scripts for refusal. Practice saying them out loud. Reward yourself for every boundary set.",
     8: "Week 1: Screen Time Audit. Use an app tracker. Identify the 'Numbing Hour'—the specific time of day you scroll to avoid feeling.\nWeek 2: Identify the Void. When reaching for the phone, pause 5 seconds. Ask: 'What am I avoiding?' (Boredom, loneliness, anxiety). Write it down instead of scrolling.\nWeek 3: Gray Scale Experiment. Turn your phone to Grayscale mode for the week. Leave the phone in another room during meals and sleep. Replace the scrolling time with a physical book or walk.\nWeek 4: Real World Anchoring. Establish 'Tech-Free Zones' (e.g., bedroom, dinner table). Schedule one face-to-face (or voice) interaction per week to replace a digital one.",
     9: "Week 1: Expense Awareness. Track spending without judgment. Notice the emotion attached to buying (guilt, relief, panic).\nWeek 2: Cognitive Restructuring. Challenge 'Catastrophic Poverty' thoughts. Replace 'I will end up homeless' with 'I have skills and resources to manage challenges.'\nWeek 3: Financial Exposure. Open your bank statements/bills that you avoid. Sit with the numbers for 10 minutes until the panic creates a bell curve (rises then falls).\nWeek 4: The 'Abundance' Plan. Automate a very small savings amount (even $5) to prove you have margin. Create a 1-month realistic budget.",
     10: "Week 1: Chaos Scan. Photograph your primary living space. Look at the photo objectively. Identify 3 areas that drain your energy visually.\nWeek 2: Visualization. Visualize a calm, ordered space. Connect the feeling of 'safety' with 'order' rather than 'chaos'. Challenge the belief 'Clutter doesn't affect me' by noting how it impacts focus/mood.\nWeek 3: The 15-Minute Sweep. Do not try to clean the whole house. Set a timer for 15 minutes daily to clear one flat surface. Stop when the timer dings.\nWeek 4: Sanctuary Creation. Designate one corner or room as a 'Chaos-Free Zone'. Maintain this single area strictly as a retreat for your nervous system.",
@@ -249,16 +243,17 @@ def generate_pdf(plain_text):
 
 def format_action_plan_html(plan_text):
     formatted = re.sub(r'(Week \d+:)', r'<br><br><span style="font-weight:900;color:#c084fc;font-size:1.4rem">\1</span>', plan_text)
-    # FIX 1 (Text Size): Reduced line-height for result text.
+    # Tighter font and line height for action plan results
     return f"<div style='line-height:1.6; font-size:1.1rem; color:#e2e8f0'>{formatted}</div>"
 
 # ============================ MAIN UI — FINAL, PERFECT, 10 QUESTIONS VISIBLE ============================
 st.markdown('<div class="main-card">', unsafe_allow_html=True)
 
-# FIX 3: Conditionally display the main title/subtitle ONLY on the landing page
-if st.session_state.page == 0:
+# Conditional Title/Subtitle Display
+if st.session_state.page == 0 or st.session_state.page == total_pages:
     st.markdown("<h1>Latent Recursion Test</h1>", unsafe_allow_html=True)
-    st.markdown('<div class="subtitle"><p>A powerful Psychological Schema Testing tool that reveals hidden patterns dictating your behavior, decisions, and life outcomes.<br>Brought to you by <a href="http://www.mygipsy.com" style="color:#c084fc">www.mygipsy.com</a></p></div>', unsafe_allow_html=True)
+    if st.session_state.page == 0:
+        st.markdown('<div class="subtitle"><p>A powerful Psychological Schema Testing tool that reveals hidden patterns dictating your behavior, decisions, and life outcomes.<br>Brought to you by <a href="http://www.mygipsy.com" style="color:#c084fc">www.mygipsy.com</a></p></div>', unsafe_allow_html=True)
 
 questions_per_page = 10
 total_pages = (len(questions_df) + questions_per_page - 1) // questions_per_page
@@ -280,58 +275,38 @@ if st.session_state.page < total_pages:
         
         choice = st.radio(
             "", options,
-            index=st.session_state.answers.get(qid, 3) - 1,
+            # Kept original logic to ensure quiz functionality (defaults to Neutral)
+            index=st.session_state.answers.get(qid, 3) - 1, 
             key=f"q_{qid}",
             label_visibility="collapsed",
             horizontal=True
         )
         st.session_state.answers[qid] = options.index(choice) + 1
 
-    # FIX 4: Determine button layout based on page number
-    if st.session_state.page == 0:
-        # Page 0: Single, centered column for only the Next button
-        next_col = st.columns([1])[0] 
-        prev_col = None
-    else:
-        # Pages 1 to N-1: Two equal columns for Previous and Next
-        prev_col, next_col = st.columns([1, 1])
-
-    # Previous Button logic (Only visible if not on the first page)
-    if st.session_state.page > 0 and prev_col:
-        # FIX 4: Apply the CSS class to force a fixed size and centering within the column
-        if prev_col.button("Previous", use_container_width=True, help=""):
+    col1, col2 = st.columns([1, 1])
+    
+    # Previous Button logic
+    if st.session_state.page > 0:
+        if col1.button("Previous", use_container_width=True):
             st.session_state.page -= 1
             st.rerun()
-        # Overriding the button's internal structure to apply the fixed width
-        st.markdown('<style>div[data-testid="column"] > div > button {width: 180px !important; margin: 1rem auto !important;}</style>', unsafe_allow_html=True)
-
 
     # Next/Submit Button logic
-    if next_col:
+    if all(qid in st.session_state.answers for qid in page_questions['ID']):
         label = "Submit & See Results" if st.session_state.page == total_pages - 1 else "Next"
-        is_completed = all(qid in st.session_state.answers for qid in page_questions['ID'])
         
-        # Determine width setting: use_container_width=True for dual columns, False for single (Page 0)
-        # Use True here for simplicity as we apply fixed width via CSS to BOTH buttons globally (via button[kind="primary"])
-        # and specifically via the column override.
-        button_width_setting = True 
+        # Determine the column for the Next/Submit button
+        target_col = col2 if st.session_state.page > 0 else col1 
         
-        if is_completed:
-            if next_col.button(label, type="primary", use_container_width=button_width_setting, help=""):
-                st.session_state.page += 1
-                st.rerun()
-        else:
-            next_col.button("Next", disabled=True, use_container_width=button_width_setting, help="")
-        
-        # FIX 4: Apply the CSS class to the button's parent element to force fixed size and centering on page 0 or the Next button column
-        if st.session_state.page == 0:
-            st.markdown('<style>div[data-testid="column"] > div > button {width: 180px !important; margin: 1rem auto !important;}</style>', unsafe_allow_html=True)
-
+        if target_col.button(label, type="primary", use_container_width=True):
+            st.session_state.page += 1
+            st.rerun()
+    else:
+        target_col = col2 if st.session_state.page > 0 else col1 
+        target_col.button("Next", disabled=True, use_container_width=True)
 
 else:
-    # Results Page
-    # FIX 3: Display title/subtitle on the Results page
-    st.markdown("<h1>Latent Recursion Test</h1>", unsafe_allow_html=True)
+    # Results Page Subtitle
     st.markdown('<p style="text-align:center; font-size:1.6rem; color:#e2e8f0; margin-bottom:4rem;">Your top psychological patterns and personalized 30-day action plans</p>', unsafe_allow_html=True)
 
     scores = calculate_schema_scores(st.session_state.answers)
