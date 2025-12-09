@@ -17,21 +17,25 @@ st.markdown("""
         color: #e2e8f0 !important;
     }
     
-    /* FIX 3: SCROLL TO TOP. Forces main content container padding to zero at the top. */
-    .stApp > header:first-child, [data-testid="stAppViewBlockContainer"] { 
+    /* FIX 2 & 3: HOLLOW BOX REMOVAL & SCROLL TO TOP. 
+       This targets all known root Streamlit containers to aggressively zero out top space. */
+    .stApp > header:first-child,
+    [data-testid="stAppViewContainer"], 
+    [data-testid="stViewContainer"],
+    [data-testid="stAppViewBlockContainer"] { 
         padding-top: 0 !important; 
         margin-top: 0 !important;
     }
-    
+
     /* Main card — clean luxury */
     .main-card 
 {
         background: rgba(17,24,39,0.97) !important;
         border-radius: 32px !important;
-        /* FIX 2 (Layout): Tighter vertical padding. */
-        padding: 1.2rem 3rem !important; 
+        /* FIX 1 (Layout): Tighter vertical padding. */
+        padding: 1rem 3rem !important; 
         max-width: 960px !important;
-        /* FIX 1 (Hollow Box): Removes top margin completely. */
+        /* FIX 3 (Hollow Box): Removes top margin completely. */
         margin: 0 auto 2rem auto !important; 
         border: 1px solid #374151 !important;
         box-shadow: 0 20px 60px rgba(0,0,0,0.6) !important;
@@ -45,20 +49,20 @@ st.markdown("""
         background: linear-gradient(to right, #e0e7ff, #c084fc) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
-        /* FIX 2 (Layout): Tighter top margin. */
-        margin: 0 0 1.2rem 0 !important;
+        /* FIX 1 (Layout): Tighter top margin. */
+        margin: 0 0 1rem 0 !important;
         line-height: 1.1 !important;
     }
     
     /* Subtitle */
     .subtitle p {
-        /* FIX 2 (Text): Smaller font for subtitle. */
-        font-size: 1.1rem !important; 
+        /* FIX 1 (Text): Smaller font for subtitle. */
+        font-size: 1.0rem !important; 
         text-align: center !important;
         color: #94a3b8 !important;
         line-height: 1.6 !important;
-        /* FIX 2 (Layout): Tighter bottom margin. */
-        margin: 0 0 1.5rem 0 !important;
+        /* FIX 1 (Layout): Tighter bottom margin. */
+        margin: 0 0 1.2rem 0 !important;
     }
     
     /* Section title */
@@ -66,27 +70,27 @@ st.markdown("""
         font-size: 2.1rem !important;
         text-align: center !important;
         color: #c084fc !important;
-        /* FIX 2 (Layout): Tighter vertical margin. */
-        margin: 1.2rem 0 1.2rem 0 !important;
+        /* FIX 1 (Layout): Tighter vertical margin. */
+        margin: 1rem 0 1rem 0 !important;
         font-weight: 700 !important;
     }
     
     /* Questions — must fit 10 per page */
     .question p {
-        /* FIX 2 (Text): Reduced question font size to fit 10 per page. */
-        font-size: 1.15rem !important; 
+        /* FIX 1 (Text): Aggressively reduced question font size to fit 10 per page. */
+        font-size: 1.05rem !important; 
         font-weight: 600 !important;
         text-align: center !important;
         color: #ffffff !important;
         line-height: 1.4 !important;
-        /* FIX 2 (Layout): Very tight margin between questions. */
-        margin: 0.4rem 0 !important; 
+        /* FIX 1 (Layout): Very tight margin between questions. */
+        margin: 0.3rem 0 !important; 
     }
     
     /* Radio buttons — WHITE TEXT, GREEN when selected */
     .stRadio > div {
         justify-content: center !important;
-        /* FIX 2 (Layout): Tight gap and margin for radio groups. */
+        /* FIX 1 (Layout): Tight gap and margin for radio groups. */
         gap: 0.4rem !important; 
         flex-wrap: wrap !important;
         margin: 0.1rem 0 0.5rem 0 !important; 
@@ -94,13 +98,12 @@ st.markdown("""
     
     .stRadio > div > label {
         background: #1e293b !important;
-        /* Ensure option text is white */
         color: white !important; 
-        /* FIX 2 (Layout): Lean button padding. */
+        /* FIX 1 (Layout): Lean button padding. */
         padding: 0.3rem 1.4rem !important; 
         border-radius: 50px !important;
         border: 2px solid #374151 !important;
-        /* FIX 2 (Text): Small font for options. */
+        /* FIX 1 (Text): Small font for options. */
         font-size: 0.95rem !important; 
         font-weight: 600 !important;
         min-width: 128px !important;
@@ -191,7 +194,7 @@ ACTION_PLANS = {
     12: "Week 1: Energy Accounting. Treat energy like money. Track deposits (rest, food) vs. withdrawals (work, stress). Identify where you are overdrawn.\nWeek 2: Permission to Rest. Identify the rule 'I must always be productive.' Replace with 'Rest is productive because it repairs me.'\nWeek 3: Pacing Experiment. Break tasks into 20-minute chunks with mandatory 5-minute floor-rests. Stop *before* you are exhausted.\nWeek 4: Sleep Hygiene Reset. Establish a strict wind-down routine. No screens 1 hour before bed. Make the bedroom for sleep only.",
     13: "Week 1: Values Sort. List 5 core values (e.g., creativity, service, freedom). Rate how much your current daily life aligns with them (1-10).\nWeek 2: Challenge 'The Destination'. Restructure the thought 'I will be happy when...' to 'I can find meaning in...'. Focus on process over outcome.\nWeek 3: Novelty Action. Try one activity purely for curiosity, not mastery or profit (e.g., a pottery class, a hike in a new place).\nWeek 4: Service Micro-Dose. Spend 1 hour/week helping someone else or a cause. Observe the impact on your sense of purpose.",
     14: "Week 1: Negativity Bias Log. Track how many times you predict a negative outcome. Mark how many actually came true.\nWeek 2: Alternative Outcomes. For every negative prediction, force yourself to write one positive and one neutral outcome.\nWeek 3: Savoring Practice. Spend 2 minutes daily solely focusing on a positive sensory experience (coffee, sun). Amplify the good feelings.\nWeek 4: Gratitude Discipline. Write 3 specific things that went well today. Explain *why* they went well due to your efforts (internal attribution).",
-    15: "Week 1: Body Scan. Since emotions are numb, track physical tension. Where does the grief live? (Chest, throat, stomach). Use an emotion wheel to label feelings before scanning.\nWeek 2: Grief Letters. Write a letter to what/who was lost. Do not send it. Allow yourself to write the angry or sad parts without editing.\nWeek 3: Scheduled Grieving. Set aside 20 minutes to listen to music or view photos that evoke the loss. Allow the wave to hit, then self-soothe.\nWeek 4: Integration. Create a ritual to honor the loss (planting a tree, lighting a candle). Move from 'getting over it' to 'carrying with you'.",
+    15: "Week 1: Body Scan. Since emotions are numb, track physical tension. Where does the grief live? (Chest, throat, stomach). Use an emotion wheel to label feelings before scanning.\nWeek 2: Grief Letters. Write a letter to what/who was lost. Do not send it. Allow yourself to write the angry or sad parts without editing.\nWeek 3: Scheduled Grieving. Set aside 20 minutes to listen to music or view photos that evoke the loss. Allow the wave to hit, then self-soothe.\nWeek 4: Integration. Create a ritual to honor the loss (planting a tree, lighting a candle). Move from 'getting over it' to 'carrying it with you'.",
     16: "Week 1: Time Blindness Track. Estimate how long a task will take, then time it. Note the discrepancy.\nWeek 2: Chunking. Break 'Big Scary Tasks' into 'Nano-Steps' (e.g., 'Open laptop' is step 1). Cognitive reframe: 'I only have to do the first step.'\nWeek 3: The Pomodoro Method. Work 25 mins, rest 5. Use an external timer (not phone). Externalize executive function.\nWeek 4: Visual Systems. Set up a visual kanban board or whiteboard (To Do, Doing, Done). Move physical sticky notes to create dopamine hits.",
     17: "Week 1: Blame Audit. Notice when you say 'It's not my fault' or 'They made me'. Catch the deflection reflex.\nWeek 2: Radical Responsibility. For one small error, practice saying 'I made a mistake, here is how I will fix it.' Observe that the world doesn't end.\nWeek 3: The 'Hard Thing' First. Do the most dreaded task first thing in the morning (Eat the Frog). Build tolerance for discomfort.\nWeek 4: Ownership Language. Change 'I have to' to 'I choose to'. Reclaim agency over your obligations.",
     18: "Week 1: Delegation Log. List tasks you are doing that others could do. Note the thought blocking you (e.g., 'They'll mess it up').\nWeek 2: Trust Testing. Challenge the thought 'No one can do it like me.' Is this fact, or a control mechanism?\nWeek 3: The 'Ask' Experiment. Ask for help with one small, low-risk task (e.g., asking for directions or a small favor).\nWeek 4: Interdependence. Identify one area where collaboration yields better results than solo work. Initiate a collaborative effort.",
@@ -320,7 +323,7 @@ else:
 
     # Title/Subtitle is displayed at the top of the else block
     st.markdown("<h1>Your Results</h1>", unsafe_allow_html=True)
-    st.markdown('<p style="text-align:center; font-size:1.6rem; color:#e2e8f0; margin-bottom:4rem;">Your top psychological patterns and personalized 30-day action plans</p>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align:center; font-size:1.6rem; color:#e2e8f0; margin-bottom:4rem;">Your top psychological patterns and personalized 30-day action plans</p></div>', unsafe_allow_html=True)
 
     plain_text = "--- Latent Recursion Test Report ---\n\n"
     for sid in top_schemas:
