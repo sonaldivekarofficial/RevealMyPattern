@@ -7,61 +7,43 @@ import streamlit.components.v1 as components
 
 st.set_page_config(layout="centered", page_title="Latent Recursion Test")
 
-# ============================ BULLETPROOF CSS — TARGETS STREAMLIT DEEPER ============================
+# ============================ ULTIMATE CSS — DEEP SELECTORS TO BEAT STREAMLIT ============================
 components.html("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;900&display=swap');
 
-:root {
-  --bg-gradient: linear-gradient(135deg, #0b1120 0%, #1e1b4b 100%);
-  --card-bg: rgba(17, 24, 39, 0.95);
-  --border-color: #374151;
-  --text-primary: #e2e8f0;
-  --text-secondary: #94a3b8;
-  --accent-purple: #c084fc;
-  --accent-teal: #06b6d4;
-  --teal-glow: rgba(6, 182, 212, 0.7);
-}
-
-body, html, .stApp, .stApp > div, [data-testid="stAppViewContainer"] {
-  background: var(--bg-gradient) !important;
+body, html, .stApp, [data-testid="stAppViewContainer"] {
+  background: linear-gradient(135deg, #0b1120 0%, #1e1b4b 100%) !important;
   font-family: 'Inter', sans-serif !important;
-  color: var(--text-primary) !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  color: #e2e8f0 !important;
 }
 
-.main-card {
-  background: var(--card-bg) !important;
+.st-emotion-cache-1wumif2 .main-card, [data-testid="column"] .main-card, div > div > .main-card {
+  background: rgba(17, 24, 39, 0.95) !important;
   backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid var(--border-color) !important;
+  border: 1px solid #374151 !important;
   border-radius: 32px !important;
   max-width: 960px !important;
   margin: 2rem auto !important;
   padding: 6rem 5rem !important;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.7) !important;
-  position: relative !important;
-  z-index: 1 !important;
 }
 
 .gradient-title {
   font-size: 4.8rem !important;
   font-weight: 900 !important;
   text-align: center !important;
-  background: linear-gradient(to right, #e0e7ff, var(--accent-purple)) !important;
+  background: linear-gradient(to right, #e0e7ff, #c084fc) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
   margin: 0 0 1.5rem 0 !important;
   line-height: 1.1 !important;
-  color: transparent !important;
 }
 
 .subtitle {
   font-size: 1.5rem !important;
   text-align: center !important;
-  color: var(--text-secondary) !important;
+  color: #94a3b8 !important;
   margin-bottom: 5rem !important;
   line-height: 1.7 !important;
 }
@@ -70,11 +52,11 @@ body, html, .stApp, .stApp > div, [data-testid="stAppViewContainer"] {
   font-size: 2.8rem !important;
   font-weight: 700 !important;
   text-align: center !important;
-  color: var(--accent-purple) !important;
+  color: #c084fc !important;
   margin: 6rem 0 4rem 0 !important;
 }
 
-.question-text {
+[data-testid="stMarkdownContainer"] .question-text {
   font-size: 2.6rem !important;
   font-weight: 600 !important;
   color: #ffffff !important;
@@ -83,15 +65,9 @@ body, html, .stApp, .stApp > div, [data-testid="stAppViewContainer"] {
   margin: 5rem 0 3rem 0 !important;
 }
 
-div[data-testid="stRadio"] > div > div {
-  gap: 1.8rem !important;
-  justify-content: center !important;
-  flex-wrap: wrap !important;
-}
-
-div[data-testid="stRadio"] label {
+div[data-testid="stRadio"] div > label {
   background: rgba(255, 255, 255, 0.06) !important;
-  color: var(--text-secondary) !important;
+  color: #94a3b8 !important;
   padding: 1.3rem 2.5rem !important;
   border-radius: 16px !important;
   border: 2px solid transparent !important;
@@ -100,14 +76,14 @@ div[data-testid="stRadio"] label {
   font-weight: 500 !important;
   min-width: 140px !important;
   text-align: center !important;
-  cursor: pointer !important;
+  margin: 0.5rem !important;
 }
 
-div[data-testid="stRadio"] label[data-checked="true"] {
-  background: var(--accent-teal) !important;
+div[data-testid="stRadio"] div > label:has(input:checked) {
+  background: #06b6d4 !important;
   color: white !important;
   border: 2px solid #67e8f9 !important;
-  box-shadow: 0 0 40px var(--teal-glow) !important;
+  box-shadow: 0 0 40px rgba(6, 182, 212, 0.7) !important;
   transform: scale(1.08) !important;
   font-weight: 900 !important;
 }
@@ -119,23 +95,29 @@ div[data-testid="stRadio"] label[data-checked="true"] {
   font-weight: 700 !important;
 }
 
-.stButton > button[kind="primary"] {
-  background: var(--accent-teal) !important;
+.stButton > button[kind="primary"], .stButton > button:not([disabled]) {
+  background: #06b6d4 !important;
   color: white !important;
   border: none !important;
   box-shadow: 0 10px 30px rgba(6, 182, 212, 0.4) !important;
-  transition: all 0.3s ease !important;
 }
 
-.stButton > button[kind="primary"]:hover {
+.stButton > button:hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 15px 40px rgba(6, 182, 212, 0.5) !important;
+}
+
+.stButton > button:disabled {
+  background: #4b5563 !important;
+  color: #9ca3af !important;
 }
 
 #MainMenu, footer, header, .stAlert, .stToolbar, .stDecoration {
   visibility: hidden !important;
   opacity: 0 !important;
   height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 [data-testid="stHorizontalBlock"] {
@@ -145,9 +127,7 @@ div[data-testid="stRadio"] label[data-checked="true"] {
 
 </style>
 <script>
-setTimeout(() => {
-  window.parent.scrollTo(0, 0);
-}, 100);
+setTimeout(() => window.parent.scrollTo(0, 0), 100);
 </script>
 """, height=0)
 
