@@ -9,11 +9,7 @@ import streamlit.components.v1 as components
 
 st.set_page_config(layout="centered", page_title="Latent Recursion Test")
 
-# CSS FIXES: 
-# 1. Separated font-size and font-weight.
-# 2. Refined Radio button targeting for green/white contrast.
-# 3. Added global centering for headers.
-
+# --- GLOBAL CSS STYLES ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -30,10 +26,11 @@ st.markdown("""
     }
     
     /* 1. LARGER FONT SIZE FOR QUESTION TEXT */
+    /* FIXED: Separated font properties for valid CSS syntax */
     .big-question {
         font-family: 'Inter', sans-serif !important;
         font-weight: 900 !important;
-        font-size: 1.6rem !important;  /* Increased size */
+        font-size: 1.95rem !important;  
         color: #ffffff !important;
         text-align: center !important;
         margin: 4rem 0 2rem 0 !important;
@@ -51,7 +48,7 @@ st.markdown("""
         transition: all 0.2s ease-in-out !important;
     }
     
-    /* FORCE TEXT COLOR WHITE INSIDE SELECTED RADIO */
+    /* Force text white inside selected radio */
     div[role="radiogroup"] > label[data-checked="true"] * {
         color: white !important;
         font-weight: 700 !important;
@@ -71,10 +68,21 @@ st.markdown("""
     #MainMenu, footer, header, .stAlert { visibility:hidden !important; }
     
     /* 4. PERFECTLY CENTERED TITLES/SUBTITLES */
-    h1, h2, h3 { text-align: center !important; }
-    
+    h1, h2, h3, .big-question { 
+        text-align: center !important; 
+    }
 </style>
 """, unsafe_allow_html=True)
+
+# 3. SCROLL TO TOP FIX (Without 'key'): The component is run 
+# without the 'key' argument, relying on st.rerun() to force the 
+# window scroll to 0, 0 when the next page loads.
+components.html(f"""
+    <script>
+        window.parent.scrollTo(0,0);
+    </script>
+""", height=0)
+
 
 # ============================ LOGIC ============================
 
@@ -84,33 +92,21 @@ def load_csv_smart(filename):
     for enc in encodings:
         for sep in separators:
             try:
-                # Assuming the necessary CSV files (Updated_100Q_Assessment.csv, Schema_Weighted_Score_Map.csv, 20_Core_Schemas.csv) 
-                # are available in the same directory or environment as the script.
-                # Since I don't have the files, I will comment this out to prevent a failure on my side, 
-                # but it should be uncommented in your environment if the files exist.
-                # return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
-                # Dummy dataframe creation for testing purposes (REMOVE THIS BLOCK WHEN YOU ADD YOUR REAL CSVs)
-                if '100Q' in filename:
-                    return pd.DataFrame({'ID': range(1, 101), 'Question Text': [f'This is question number {i}' for i in range(1, 101)]})
-                elif 'Map' in filename:
-                    return pd.DataFrame({'Schema_ID': [1, 1, 2, 2], 'Question_ID': [1, 2, 3, 4], 'Direction': [1, -1, 1, 1]})
-                elif 'Schemas' in filename:
-                    return pd.DataFrame({'Schema': range(1, 21), 'Schema Name': [f'Schema {i}' for i in range(1, 21)], 'Root Causes (Childhood Drivers)': ['Test'] * 20, 'Symptoms & Behavioral Loops': ['Test'] * 20})
-                
+                # Assuming CSV files are available in the execution environment
+                return pd.read_csv(filename, encoding=enc, sep=sep, engine='python', on_bad_lines='skip')
             except:
                 pass
     raise ValueError(f"Could not load {filename}")
 
 try:
-    # IMPORTANT: Ensure your CSV files are present when you run this
     questions_df = load_csv_smart("Updated_100Q_Assessment.csv")
     map_df = load_csv_smart("Schema_Weighted_Score_Map.csv")
     schemas_df = load_csv_smart("20_Core_Schemas.csv")
 except ValueError as e:
-    st.error(f"Error loading data: {e}. Please ensure your CSV files are accessible.")
+    st.error(f"Error loading data: {e}")
     st.stop()
 
-# [Action Plans Dictionary is assumed to be present and correct]
+# [cite_start]Reusing the existing ACTION_PLANS dictionary from your file content [cite: 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130]
 ACTION_PLANS = {
     1: "Week 1: Keep a 'Perfectionism Log'.\nRecord situations where you felt the urge to be perfect.\nNote the specific standard you felt you had to meet and rate your anxiety (1-10).\nIdentify if the standard was self-imposed or external.\nWeek 2: Use 'Cost-Benefit Analysis'.\nList the advantages (e.g., praise, safety) vs. disadvantages (e.g., burnout, time loss) of your high standards.\nChallenge the 'All-or-Nothing' distortion: 'If I'm not perfect, I'm a failure.'\nWeek 3: The 'B+ Experiment'.\nDeliberately perform a low-stakes task (e.g., an internal email, a quick chore) to an 80% standard.\nResist the urge to fix it. Record the outcome: Did a catastrophe happen?\nWeek 4: Create a 'Good Enough' Mantra card.\nSchedule mandatory 'Non-Productive Time' where the goal is specifically to achieve nothing, reinforcing worth separate from output.",
     2: "Week 1: Track 'Agency Moments'.\nRecord times during the day when you actually made a choice (even small ones like what to eat).\nRate your sense of control (0-10) for each.\nWeek 2: Challenge 'Fortune Telling'.\nWhen you think 'It won't matter anyway,' ask: 'What is the evidence for this?'\nand 'Have I ever influenced an outcome before?' Write down 3 counter-examples.\nWeek 3: Graded Task Assignment.\nPick one micro-goal (e.g., wash 3 dishes, send 1 text). Do not focus on the outcome, only the initiation.\nTreat the action itself as the success.\nWeek 4: Build a 'Success Log'.\nEvery evening, write down 3 things you influenced that day.\nReview this log whenever the feeling of paralysis returns.",
@@ -142,19 +138,7 @@ if 'page' not in st.session_state:
 if 'answers' not in st.session_state:
     st.session_state.answers = {}
 
-# 3. SCROLL FIX: The `key` argument is removed. We embed the page number in a hidden span 
-# to ensure the component content changes on every page turn, forcing a re-render and 
-# execution of the scroll script.
-components.html(f"""
-    <script>
-        window.parent.scrollTo(0,0);
-    </script>
-    <span style="display:none;">{st.session_state.page}</span>
-""", height=0)
-
-
 def calculate_schema_scores(answers):
-    # [Rest of function logic remains unchanged]
     if len(answers) != len(questions_df):
         return {}
     results = {}
@@ -184,7 +168,6 @@ def calculate_schema_scores(answers):
     return results
 
 def get_top_schemas(scores, trauma_threshold=60):
-    # [Rest of function logic remains unchanged]
     sorted_scores = sorted(scores.items(), key=lambda x: (-x[1], x[0]))
     top_3 = [item[0] for item in sorted_scores[:3]]
     trauma_score = scores.get(20, 0)
@@ -196,17 +179,16 @@ def get_top_schemas(scores, trauma_threshold=60):
     return display, root_cause_note, {sid: scores[sid] for sid in display}
 
 def generate_pdf(plain_text):
-    # [Rest of function logic remains unchanged]
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
+    # Using 'latin-1' encoding to handle common PDF export issues with fpdf
     pdf.multi_cell(0, 10, plain_text.encode('latin-1', 'replace').decode('latin-1'))
     pdf_bytes = BytesIO(pdf.output(dest='S').encode('latin-1'))
     pdf_bytes.seek(0)
     return pdf_bytes
 
 def format_action_plan_html(plan_text):
-    # [Rest of function logic remains unchanged]
     formatted = re.sub(r'(Week \d+:)', r'<br><span style="font-weight:900;color:#c084fc">\1</span>', plan_text)
     return formatted
 
@@ -215,8 +197,8 @@ def format_action_plan_html(plan_text):
 with st.container():
     st.markdown("<div class='main-card'>", unsafe_allow_html=True)
 
-    # TITLES/SUBTITLES: Using inline styles for explicit centering
-    st.markdown("<h1 style='text-align:center; color:white;'>Latent Recursion Test</h1>", unsafe_allow_html=True)
+    # TITLES/SUBTITLES: Relying on CSS h1/h3 centering rule
+    st.markdown("<h1>Latent Recursion Test</h1>", unsafe_allow_html=True)
     st.markdown("""
     <p style='text-align:center;font-size:1.3rem;color:#94a3b8;margin:2rem 0 4rem'>
         A powerful Psychological Schema Testing tool that reveals hidden patterns dictating your behavior, decisions, and life outcomes.<br>
@@ -244,7 +226,7 @@ with st.container():
         for _, q in page_questions.iterrows():
             qid = q['ID']
             text = q['Question Text']
-            # APPLIED FIX: Using the corrected .big-question class for larger font
+            # Using the corrected .big-question class
             st.markdown(f"<div class='big-question'><strong>Q{qid}: {text}</strong></div>", unsafe_allow_html=True)
 
             choice = st.radio("", options, index=st.session_state.answers.get(qid, 3)-1, key=f"q_{qid}", label_visibility="collapsed", horizontal=True)
@@ -260,7 +242,7 @@ with st.container():
             label = "Submit & See Results" if st.session_state.page == total_pages-1 else "Next"
             if col2.button(label, type="primary"):
                 st.session_state.page += 1
-                st.rerun()
+                st.rerun() # Rerunning the app causes the scroll component to trigger on the new page
         else:
             col2.button("Next", disabled=True)
             st.error("Please answer all questions.")
@@ -269,7 +251,7 @@ with st.container():
         scores = calculate_schema_scores(st.session_state.answers)
         top_schemas, root_note, top_scores = get_top_schemas(scores)
 
-        st.markdown("<h1 style='text-align:center; color:white;'>Your Results</h1>", unsafe_allow_html=True)
+        st.markdown("<h1>Your Results</h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align:center;font-size:1.4rem;color:#e2e8f0;margin-bottom:3rem'>Your top psychological patterns and personalized 30-day action plans</p>", unsafe_allow_html=True)
 
         plain_text = "--- Latent Recursion Test Report ---\n\n"
